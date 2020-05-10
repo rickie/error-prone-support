@@ -47,6 +47,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.checkerframework.checker.regex.RegexUtil;
 
 /**
  * A {@link BugChecker} which flags code which can be simplified using Refaster templates located on
@@ -166,7 +167,7 @@ public final class RefasterCheck extends BugChecker implements CompilationUnitTr
     return CompositeCodeTransformer.compose(
         flags
             .get(INCLUDED_TEMPLATES_PATTERN_FLAG)
-            .map(Pattern::compile)
+            .map(pattern -> Pattern.compile(RegexUtil.asRegex(pattern)))
             .map(nameFilter -> filterCodeTransformers(allTransformers, nameFilter))
             .orElseGet(allTransformers::values));
   }

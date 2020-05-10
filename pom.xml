@@ -126,6 +126,7 @@
         one place. We use these to keep dependencies in sync. Version numbers
         that need to be referenced only once should *not* be listed here. -->
         <version.auto-service>1.0</version.auto-service>
+        <version.checker-framework>3.17.0</version.checker-framework>
         <version.error-prone>${version.error-prone-orig}</version.error-prone>
         <version.error-prone-fork>v${version.error-prone-orig}-picnic-1</version.error-prone-fork>
         <version.error-prone-orig>2.9.0</version.error-prone-orig>
@@ -329,7 +330,12 @@
             <dependency>
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
-                <version>3.17.0</version>
+                <version>${version.checker-framework}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>dataflow-shaded</artifactId>
+                <version>${version.checker-framework}</version>
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>
@@ -372,6 +378,22 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <!-- These two dependencies are implicitly used by all submodules because
+    the Checker Framework enriches the compiled code with inferred annotations. -->
+    <!-- XXX: Move these if we decide to move the Checker Framework code to a
+    separate profile. -->
+    <dependencies>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>dataflow-shaded</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <pluginManagement>
@@ -710,8 +732,36 @@
                                 <artifactId>auto-service</artifactId>
                                 <version>${version.auto-service}</version>
                             </path>
+                            <path>
+                                <groupId>org.checkerframework</groupId>
+                                <artifactId>checker</artifactId>
+                                <version>${version.checker-framework}</version>
+                            </path>
                         </annotationProcessorPaths>
+                        <!-- XXX: Instead, consider adding a service loading
+                        directive. See
+                        https://checkerframework.org/manual/#checker-auto-discovery. -->
+                        <annotationProcessors>
+                            <annotationProcessor>com.google.auto.service.processor.AutoServiceProcessor</annotationProcessor>
+                            <annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
+                            <!-- XXX: This checker also flags `Optional` fields
+                            and method method parameters. Consider introducing
+                            a derivative checker which _does_ allow this.
+                            <annotationProcessor>org.checkerframework.checker.optional.OptionalChecker</annotationProcessor>-->
+                            <!-- XXX: It seems that this checker flags
+                            `a == b`, but not `a != b`. File a ticket? -->
+                            <!--<annotationProcessor>org.checkerframework.checker.interning.InterningChecker</annotationProcessor>-->
+                            <!-- XXX: Just false positives?
+                            <annotationProcessor>org.checkerframework.checker.lock.LockChecker</annotationProcessor>-->
+                            <annotationProcessor>org.checkerframework.checker.formatter.FormatterChecker</annotationProcessor>
+                            <annotationProcessor>org.checkerframework.checker.regex.RegexChecker</annotationProcessor>
+                        </annotationProcessors>
                         <compilerArgs>
+                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+                            <!-- XXX: Revisit whether indeed we should ignore
+                            Refaster templates. -->
+                            <arg>-AskipDefs=^tech\.picnic\.errorprone\.refastertemplates\.</arg>
+                            <arg>-Awarns</arg>
                             <arg>-Xmaxerrs</arg>
                             <arg>10000</arg>
                             <arg>-Xmaxwarns</arg>
