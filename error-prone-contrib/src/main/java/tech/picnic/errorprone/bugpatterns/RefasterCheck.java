@@ -47,7 +47,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.checkerframework.checker.regex.RegexUtil;
+import org.checkerframework.checker.regex.util.RegexUtil;
 
 /**
  * A {@link BugChecker} which flags code which can be simplified using Refaster templates located on

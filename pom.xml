@@ -334,6 +334,11 @@
             </dependency>
             <dependency>
                 <groupId>org.checkerframework</groupId>
+                <artifactId>checker-util</artifactId>
+                <version>${version.checker-framework}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.checkerframework</groupId>
                 <artifactId>dataflow-shaded</artifactId>
                 <version>${version.checker-framework}</version>
             </dependency>
@@ -738,9 +743,10 @@
                                 <version>${version.checker-framework}</version>
                             </path>
                         </annotationProcessorPaths>
-                        <!-- XXX: Instead, consider adding a service loading
-                        directive. See
-                        https://checkerframework.org/manual/#checker-auto-discovery. -->
+                        <!-- XXX: According to the documentation we should use
+                        `META-INF/services` instead, since there are other
+                        annotation processors at play. OTOH
+                        `AutoServiceProcessor` is also specified here. -->
                         <annotationProcessors>
                             <annotationProcessor>com.google.auto.service.processor.AutoServiceProcessor</annotationProcessor>
                             <annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
@@ -756,6 +762,13 @@
                             <annotationProcessor>org.checkerframework.checker.formatter.FormatterChecker</annotationProcessor>
                             <annotationProcessor>org.checkerframework.checker.regex.RegexChecker</annotationProcessor>
                         </annotationProcessors>
+                        <!-- XXX: Without the fork there's an NPE, _with_ the
+                        fork there's another issue. Figure out why using
+                        `.mvn/jvm.config` doesn't work. -->
+                        <fork>true</fork>
+                        <!-- XXX: Instead, consider adding a service loading
+                        directive. See
+                        https://checkerframework.org/manual/#checker-auto-discovery. -->
                         <compilerArgs>
                             <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                             <!-- XXX: Revisit whether indeed we should ignore
