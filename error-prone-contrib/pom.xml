@@ -214,14 +214,6 @@
                                 <artifactId>refaster-support</artifactId>
                                 <version>${project.version}</version>
                             </path>
-                            <!-- XXX: Drop this; this is for the
-                            `src/main/resources/META-INF/services/javax.annotation.processing.Processor`
-                            test. -->
-                            <path>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>error-prone-contrib</artifactId>
-                                <version>${project.version}</version>
-                            </path>
                         </annotationProcessorPaths>
                         <compilerArgs combine.children="append">
                             <arg>-Xplugin:RefasterRuleResourceCompiler</arg>

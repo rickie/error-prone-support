@@ -742,39 +742,63 @@
                                 <artifactId>checker</artifactId>
                                 <version>${version.checker-framework}</version>
                             </path>
+                            <!-- This dependency is listed explicitly because
+                            Auto Service depends on an older incompatible
+                            version of this artifact. -->
+                            <path>
+                                <groupId>org.checkerframework</groupId>
+                                <artifactId>checker-qual</artifactId>
+                                <version>${version.checker-framework}</version>
+                            </path>
                         </annotationProcessorPaths>
-                        <!-- XXX: According to the documentation we should use
-                        `META-INF/services` instead, since there are other
-                        annotation processors at play. OTOH
-                        `AutoServiceProcessor` is also specified here. -->
                         <annotationProcessors>
                             <annotationProcessor>com.google.auto.service.processor.AutoServiceProcessor</annotationProcessor>
+                            <annotationProcessor>org.checkerframework.checker.calledmethods.CalledMethodsChecker</annotationProcessor>
+                            <!-- XXX: This check seems to trigger some false
+                            positives.
+                            <annotationProcessor>org.checkerframework.checker.lock.LockChecker</annotationProcessor> -->
+                            <annotationProcessor>org.checkerframework.checker.formatter.FormatterChecker</annotationProcessor>
+                            <!-- XXX: This check triggers false positives.
+                            <annotationProcessor>org.checkerframework.checker.index.IndexChecker</annotationProcessor> -->
+                            <annotationProcessor>org.checkerframework.checker.interning.InterningChecker</annotationProcessor>
                             <annotationProcessor>org.checkerframework.checker.nullness.NullnessChecker</annotationProcessor>
                             <!-- XXX: This checker also flags `Optional` fields
                             and method method parameters. Consider introducing
                             a derivative checker which _does_ allow this.
-                            <annotationProcessor>org.checkerframework.checker.optional.OptionalChecker</annotationProcessor>-->
-                            <!-- XXX: It seems that this checker flags
-                            `a == b`, but not `a != b`. File a ticket? -->
-                            <!--<annotationProcessor>org.checkerframework.checker.interning.InterningChecker</annotationProcessor>-->
-                            <!-- XXX: Just false positives?
-                            <annotationProcessor>org.checkerframework.checker.lock.LockChecker</annotationProcessor>-->
-                            <annotationProcessor>org.checkerframework.checker.formatter.FormatterChecker</annotationProcessor>
+                            <annotationProcessor>org.checkerframework.checker.optional.OptionalChecker</annotationProcessor> -->
                             <annotationProcessor>org.checkerframework.checker.regex.RegexChecker</annotationProcessor>
+                            <!-- XXX: This check seems to trigger some false
+                            positives.
+                            <annotationProcessor>org.checkerframework.checker.resourceleak.ResourceLeakChecker</annotationProcessor> -->
+                            <annotationProcessor>org.checkerframework.checker.signature.SignatureChecker</annotationProcessor>
+                            <annotationProcessor>org.checkerframework.common.initializedfields.InitializedFieldsChecker</annotationProcessor>
                         </annotationProcessors>
-                        <!-- XXX: Without the fork there's an NPE, _with_ the
-                        fork there's another issue. Figure out why using
-                        `.mvn/jvm.config` doesn't work. -->
-                        <fork>true</fork>
-                        <!-- XXX: Instead, consider adding a service loading
-                        directive. See
-                        https://checkerframework.org/manual/#checker-auto-discovery. -->
                         <compilerArgs>
-                            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                             <!-- XXX: Revisit whether indeed we should ignore
                             Refaster templates. -->
                             <arg>-AskipDefs=^tech\.picnic\.errorprone\.refastertemplates\.</arg>
-                            <arg>-Awarns</arg>
+                            <!-- XXX: This flag triggers a crash.
+                            <arg>-AcheckCastElementType</arg>-->
+                            <arg>-AcheckPurityAnnotations</arg>
+                            <arg>-AconcurrentSemantics</arg>
+                            <!-- XXX: This flag triggers a crash.
+                            <arg>-AconservativeUninferredTypeArguments</arg>-->
+                            <arg>-AignoreRawTypeArguments=false</arg>
+                            <arg>-AinvariantArrays</arg>
+                            <arg>-AresolveReflection</arg>
+                            <arg>-AshowSuppressWarningsStrings</arg>
+                            <arg>-AwarnUnneededSuppressions</arg>
+                            <arg>-ArequirePrefixInWarningSuppressions</arg>
+                            <!-- XXX: Ponder.
+                            <arg>-AsuggestPureMethods</arg> -->
+                            <!-- XXX: Seemingly redundant null checks may be
+                            necessary when interacting with an unannotated,
+                            partially annotated or incorrectly annotated API.
+                            So ideally we specify
+                            `-Alint=all,-redundantNullComparison` or
+                            `-Alint=all -ANullnessChecker_lint=-redundantNullComparison`,
+                            but neither of these options has the desired
+                            effect. -->
                             <arg>-Xmaxerrs</arg>
                             <arg>10000</arg>
                             <arg>-Xmaxwarns</arg>
@@ -1492,31 +1516,31 @@
                             <compilerArgs combine.children="append">
                                 <!-- Enable and configure Error Prone. -->
                                 <arg>
-                                    -Xplugin:ErrorProne
+                                    -Xplugin:ErrorProne \
                                     <!-- We use a separate Maven profile to
                                     raise all warnings as errors. This way one
                                     can optionally collect all warnings without
                                     failing the build on the first error
                                     encountered. -->
-                                    -XepAllErrorsAsWarnings
+                                    -XepAllErrorsAsWarnings \
                                     <!-- We want to enable almost all Error
                                     Prone bug pattern checkers, so we enable
                                     all and then selectively deactivate some. -->
-                                    -XepAllDisabledChecksAsWarnings
+                                    -XepAllDisabledChecksAsWarnings \
                                     <!-- We don't target Android. -->
-                                    -Xep:AndroidJdkLibsChecker:OFF
+                                    -Xep:AndroidJdkLibsChecker:OFF \
                                     <!-- XXX: Enable this once we open-source
                                     this library. -->
-                                    -Xep:BetaApi:OFF
+                                    -Xep:BetaApi:OFF \
                                     <!-- We don't target JDK 7. -->
-                                    -Xep:Java7ApiChecker:OFF
+                                    -Xep:Java7ApiChecker:OFF \
                                     <!-- We don't target Android. -->
-                                    -Xep:StaticOrDefaultInterfaceMethod:OFF
-                                    -XepOpt:NullAway:AnnotatedPackages=tech.picnic
-                                    -XepOpt:NullAway:AssertsEnabled=true
-                                    -XepOpt:NullAway:CheckOptionalEmptiness=true
+                                    -Xep:StaticOrDefaultInterfaceMethod:OFF \
+                                    -XepOpt:NullAway:AnnotatedPackages=tech.picnic \
+                                    -XepOpt:NullAway:AssertsEnabled=true \
+                                    -XepOpt:NullAway:CheckOptionalEmptiness=true \
                                     <!-- Append additional custom arguments. -->
-                                    ${error-prone.patch-args}
+                                    ${error-prone.patch-args} \
                                     ${error-prone.self-check-args}
                                 </arg>
                                 <!-- The Error Prone plugin makes certain

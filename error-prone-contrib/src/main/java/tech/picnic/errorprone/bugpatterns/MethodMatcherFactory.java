@@ -33,7 +33,7 @@ final class MethodMatcherFactory {
   // fix.
   // XXX: The `nullness` warning suppression shouldn't be necessary. See
   // https://github.com/typetools/checker-framework/issues/4006.
-  @SuppressWarnings("nullness:argument.type.incompatible")
+  @SuppressWarnings("nullness:argument")
   private static Matcher<ExpressionTree> createMethodMatcher(CharSequence signature) {
     java.util.regex.Matcher m = METHOD_SIGNATURE.matcher(signature);
     checkArgument(m.matches(), "Not a valid method signature: %s", signature);

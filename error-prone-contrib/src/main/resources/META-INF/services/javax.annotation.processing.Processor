@@ -1,5 +1,0 @@
-org.checkerframework.checker.nullness.NullnessChecker
-org.checkerframework.checker.optional.OptionalChecker
-org.checkerframework.checker.lock.LockChecker
-org.checkerframework.checker.formatter.FormatterChecker
-org.checkerframework.checker.regex.RegexChecker

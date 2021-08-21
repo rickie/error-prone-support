@@ -45,7 +45,7 @@ public final class LexicographicalAnnotationListingCheck extends BugChecker
       return Description.NO_MATCH;
     }
 
-    ImmutableList<? extends AnnotationTree> sortedAnnotations = sort(originalOrdering, state);
+    ImmutableList<AnnotationTree> sortedAnnotations = sort(originalOrdering, state);
     if (originalOrdering.equals(sortedAnnotations)) {
       return Description.NO_MATCH;
     }
@@ -57,16 +57,19 @@ public final class LexicographicalAnnotationListingCheck extends BugChecker
     return description.build();
   }
 
-  private static ImmutableList<? extends AnnotationTree> sort(
+  private static ImmutableList<AnnotationTree> sort(
       List<? extends AnnotationTree> annotations, VisitorState state) {
     return annotations.stream()
         .sorted(comparing(annotation -> Util.treeToString(annotation, state)))
         .collect(toImmutableList());
   }
 
+  // XXX: The Checker Framework has trouble inferring the first generic type argument to
+  // `Streams.zip`. Reference the relevant ticket.
+  @SuppressWarnings("keyfor:type.argument")
   private static Optional<Fix> tryFixOrdering(
       List<? extends AnnotationTree> originalAnnotations,
-      ImmutableList<? extends AnnotationTree> sortedAnnotations,
+      ImmutableList<AnnotationTree> sortedAnnotations,
       VisitorState state) {
     return Streams.zip(
             originalAnnotations.stream(),
