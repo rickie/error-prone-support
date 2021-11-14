@@ -36,6 +36,20 @@ final class OptionalTemplates {
     }
   }
 
+  /** Don't unnecessarily wrap and unwrap an {@link Optional}. */
+  static final class OptionalIdentity<T> {
+    @BeforeTemplate
+    @SuppressWarnings("NestedOptionals" /* Auto-fix for the `NestedOptionals` check. */)
+    Optional<T> before(Optional<T> optional) {
+      return optional.map(Optional::of).orElseGet(Optional::empty);
+    }
+
+    @AfterTemplate
+    Optional<T> after(Optional<T> optional) {
+      return optional;
+    }
+  }
+
   /** Prefer {@link Optional#isEmpty()} over the more verbose alternative. */
   static final class OptionalIsEmpty<T> {
     @BeforeTemplate

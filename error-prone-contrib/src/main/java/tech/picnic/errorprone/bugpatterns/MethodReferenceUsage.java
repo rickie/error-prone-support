@@ -49,6 +49,7 @@ import javax.lang.model.element.Name;
 // `not(some::reference)`.
 // XXX: This check is extremely inefficient due to its reliance on `SuggestedFixes.compilesWithFix`.
 // Palantir's `LambdaMethodReference` check seems to suffer a similar issue at this time.
+// XXX: Does this check also do `() -> something.someConst` -> `something::someConst`?
 @AutoService(BugChecker.class)
 @BugPattern(
     summary = "Prefer method references over lambda expressions",

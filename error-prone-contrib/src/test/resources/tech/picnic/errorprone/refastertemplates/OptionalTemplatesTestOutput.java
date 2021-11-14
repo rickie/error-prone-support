@@ -19,6 +19,10 @@ final class OptionalTemplatesTest implements RefasterTemplateTestCase {
     return ImmutableSet.of(Optional.ofNullable(toString()), Optional.ofNullable(toString()));
   }
 
+  Optional<Integer> testOptionalIdentity() {
+    return Optional.of(0);
+  }
+
   ImmutableSet<Boolean> testOptionalIsEmpty() {
     return ImmutableSet.of(Optional.empty().isEmpty(), Optional.of("foo").isEmpty());
   }
