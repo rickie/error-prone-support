@@ -64,6 +64,9 @@ final class AutowiredConstructorTest {
         .doTest();
   }
 
+  // XXX: Drop this suppression once
+  // https://github.com/PicnicSupermarket/error-prone-support/pull/347 is merged.
+  @SuppressWarnings("RegexpMultiline" /* Check may introduce empty line at start of code block. */)
   @Test
   void replacement() {
     BugCheckerRefactoringTestHelper.newInstance(AutowiredConstructor.class, getClass())
