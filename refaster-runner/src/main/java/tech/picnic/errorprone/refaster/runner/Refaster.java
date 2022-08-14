@@ -135,7 +135,8 @@ public final class Refaster extends BugChecker implements CompilationUnitTreeMat
   }
 
   private Optional<SeverityLevel> getSeverityOverride(VisitorState state) {
-    return Optional.ofNullable(state.errorProneOptions().getSeverityMap().get(canonicalName()))
+    return Optional.ofNullable(state.errorProneOptions().getSeverityMap().get
+                    (canonicalName()))
         .flatMap(Refaster::toSeverityLevel);
   }
 
