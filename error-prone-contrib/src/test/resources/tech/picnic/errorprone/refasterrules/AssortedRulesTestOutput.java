@@ -20,6 +20,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import tech.picnic.errorprone.refaster.test.RefasterRuleCollectionTestCase;
 
@@ -35,6 +36,10 @@ final class AssortedRulesTest implements RefasterRuleCollectionTestCase {
         Splitter.class,
         Streams.class,
         toImmutableSet());
+  }
+
+  ImmutableSet<Predicate<Object>> testClassIsInstance() {
+    return ImmutableSet.of(String.class::isInstance, Integer.class::isInstance);
   }
 
   int testCheckIndex() {

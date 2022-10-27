@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.jspecify.nullness.Nullable;
 import tech.picnic.errorprone.refaster.annotation.OnlineDocumentation;
@@ -37,6 +38,18 @@ import tech.picnic.errorprone.refaster.annotation.OnlineDocumentation;
 @OnlineDocumentation
 final class AssortedRules {
   private AssortedRules() {}
+
+  static final class ClassIsInstance<T, S> {
+    @BeforeTemplate
+    Predicate<S> before(Class<T> clazz) {
+      return Refaster.anyOf(t -> Refaster.<T>isInstance(t), t -> clazz.isInstance(t));
+    }
+
+    @AfterTemplate
+    Predicate<S> after(Class<T> clazz) {
+      return clazz::isInstance;
+    }
+  }
 
   /** Prefer {@link Objects#checkIndex(int, int)} over the Guava alternative. */
   static final class CheckIndex {
