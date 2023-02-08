@@ -11,7 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 final class BugPatternTestExtractorTest {
   @Test
-  void noBugPatternTest(@TempDir Path outputDirectory) {
+  void noTestClass(@TempDir Path outputDirectory) {
     Compilation.compileWithDocumentationGenerator(
         outputDirectory,
         "TestCheckerWithoutAnnotation.java",
@@ -23,328 +23,444 @@ final class BugPatternTestExtractorTest {
   }
 
   @Test
-  void bugPatternTestFileWithoutTestSuffix(@TempDir Path outputDirectory) {
-    Compilation.compileWithDocumentationGenerator(
-        outputDirectory,
-        "TestCheckerWithWrongSuffix.java",
-        "import com.google.errorprone.bugpatterns.BugChecker;",
-        "import com.google.errorprone.CompilationTestHelper;",
-        "",
-        "final class TestCheckerWithoutTestSuffix {",
-        "  private static class TestCheckerWithout extends BugChecker {}",
-        "",
-        "  CompilationTestHelper compilationTestHelper = CompilationTestHelper.newInstance(TestCheckerWithout.class, getClass());",
-        "}");
-
-    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
-  }
-
-  @Test
-  void minimalBugPatternTest(@TempDir Path outputDirectory) throws IOException {
-    Compilation.compileWithDocumentationGenerator(
-        outputDirectory,
-        "TestCheckerTest.java",
-        "import com.google.errorprone.bugpatterns.BugChecker;",
-        "import com.google.errorprone.CompilationTestHelper;",
-        "",
-        "final class TestCheckerTest {",
-        "  private static class TestChecker extends BugChecker {}",
-        "",
-        "  CompilationTestHelper compilationTestHelper = CompilationTestHelper.newInstance(TestChecker.class, getClass());",
-        "}");
-
-    verifyFileMatchesResource(
-        outputDirectory,
-        "bugpattern-test-TestCheckerTest.json",
-        "bugpattern-test-documentation-minimal.json");
-  }
-
-  @Test
-  void differentBugPatternAsClassVariableTest(@TempDir Path outputDirectory) {
-    Compilation.compileWithDocumentationGenerator(
-        outputDirectory,
-        "TestCheckerTest.java",
-        "import com.google.errorprone.bugpatterns.BugChecker;",
-        "import com.google.errorprone.CompilationTestHelper;",
-        "",
-        "final class TestCheckerTest {",
-        "  private static class DifferentChecker extends BugChecker {}",
-        "",
-        "  CompilationTestHelper compilationTestHelper = CompilationTestHelper.newInstance(DifferentChecker.class, getClass());",
-        "}");
-
-    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
-  }
-
-  @Test
-  void differentBugPatternAsLocalVariable(@TempDir Path outputDirectory) {
-    Compilation.compileWithDocumentationGenerator(
-        outputDirectory,
-        "TestCheckerTest.java",
-        "import com.google.errorprone.bugpatterns.BugChecker;",
-        "import com.google.errorprone.CompilationTestHelper;",
-        "import org.junit.jupiter.api.Test;",
-        "",
-        "final class TestCheckerTest {",
-        "  private static class DifferentChecker extends BugChecker {}",
-        "",
-        "  @Test",
-        "  void identification() {",
-        "    CompilationTestHelper.newInstance(DifferentChecker.class, getClass())",
-        "        .addSourceLines(\"A.java\", \"class A {}\")",
-        "        .doTest();",
-        "  }",
-        "}");
-
-    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
-  }
-
-  @Test
-  void bugPatternTestSingleIdentification(@TempDir Path outputDirectory) throws IOException {
-    Compilation.compileWithDocumentationGenerator(
-        outputDirectory,
-        "TestCheckerTest.java",
-        "import com.google.errorprone.bugpatterns.BugChecker;",
-        "import com.google.errorprone.CompilationTestHelper;",
-        "import org.junit.jupiter.api.Test;",
-        "",
-        "final class TestCheckerTest {",
-        "  private static class TestChecker extends BugChecker {}",
-        "",
-        "  @Test",
-        "  void identification() {",
-        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
-        "        .addSourceLines(\"A.java\", \"class A {}\")",
-        "        .doTest();",
-        "  }",
-        "}");
-
-    verifyFileMatchesResource(
-        outputDirectory,
-        "bugpattern-test-TestCheckerTest.json",
-        "bugpattern-test-documentation-identification.json");
-  }
-
-  @Test
-  void bugPatternTestIdentificationMultipleSourceLines(@TempDir Path outputDirectory)
-      throws IOException {
-    Compilation.compileWithDocumentationGenerator(
-        outputDirectory,
-        "TestCheckerTest.java",
-        "package pkg;",
-        "",
-        "import com.google.errorprone.bugpatterns.BugChecker;",
-        "import com.google.errorprone.CompilationTestHelper;",
-        "import org.junit.jupiter.api.Test;",
-        "",
-        "final class TestCheckerTest {",
-        "  private static class TestChecker extends BugChecker {}",
-        "",
-        "  @Test",
-        "  void identification() {",
-        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
-        "        .addSourceLines(\"A.java\", \"class A {}\")",
-        "        .addSourceLines(\"B.java\", \"class B {}\")",
-        "        .doTest();",
-        "  }",
-        "}");
-
-    verifyFileMatchesResource(
-        outputDirectory,
-        "bugpattern-test-TestCheckerTest.json",
-        "bugpattern-test-documentation-identification-two-sources.json");
-  }
-
-  @Test
-  void bugPatternTestSingleReplacement(@TempDir Path outputDirectory) throws IOException {
+  void noDoTestInvocation(@TempDir Path outputDirectory) {
     Compilation.compileWithDocumentationGenerator(
         outputDirectory,
         "TestCheckerTest.java",
         "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
-        "import com.google.errorprone.BugCheckerRefactoringTestHelper.TestMode;",
+        "import com.google.errorprone.CompilationTestHelper;",
         "import com.google.errorprone.bugpatterns.BugChecker;",
-        "import org.junit.jupiter.api.Test;",
         "",
         "final class TestCheckerTest {",
         "  private static class TestChecker extends BugChecker {}",
         "",
-        "  @Test",
-        "  void replacement() {",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .addSourceLines(\"A.java\", \"// BUG: Diagnostic contains:\", \"class A {}\");",
+        "",
         "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
         "        .addInputLines(\"A.java\", \"class A {}\")",
-        "        .addOutputLines(\"A.java\", \"class A {}\")",
-        "        .doTest(TestMode.TEXT_MATCH);",
+        "        .addOutputLines(\"A.java\", \"class A { /* This is a change. */ }\");",
         "  }",
         "}");
 
-    verifyFileMatchesResource(
-        outputDirectory,
-        "bugpattern-test-TestCheckerTest.json",
-        "bugpattern-test-documentation-replacement.json");
+    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
   }
 
   @Test
-  void bugPatternTestMultipleReplacementSources(@TempDir Path outputDirectory) throws IOException {
+  void nullBugCheckerInstance(@TempDir Path outputDirectory) {
     Compilation.compileWithDocumentationGenerator(
         outputDirectory,
         "TestCheckerTest.java",
         "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
-        "import com.google.errorprone.BugCheckerRefactoringTestHelper.TestMode;",
+        "import com.google.errorprone.CompilationTestHelper;",
         "import com.google.errorprone.bugpatterns.BugChecker;",
-        "import org.junit.jupiter.api.Test;",
+        "",
+        "final class TestCheckerTest {",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance((Class<BugChecker>) null, getClass())",
+        "        .addSourceLines(\"A.java\", \"// BUG: Diagnostic contains:\", \"class A {}\")",
+        "        .doTest();",
+        "",
+        "    BugCheckerRefactoringTestHelper.newInstance((Class<BugChecker>) null, getClass())",
+        "        .addInputLines(\"A.java\", \"class A {}\")",
+        "        .addOutputLines(\"A.java\", \"class A { /* This is a change. */ }\")",
+        "        .doTest();",
+        "  }",
+        "}");
+
+    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
+  }
+
+  @Test
+  void rawBugCheckerInstance(@TempDir Path outputDirectory) {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "TestCheckerTest.java",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
+        "import com.google.errorprone.CompilationTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
         "",
         "final class TestCheckerTest {",
         "  private static class TestChecker extends BugChecker {}",
         "",
-        "  @Test",
-        "  void replacement() {",
+        "  @SuppressWarnings(\"unchecked\")",
+        "  void m() {",
+        "    @SuppressWarnings(\"rawtypes\")",
+        "    Class bugChecker = TestChecker.class;",
+        "",
+        "    CompilationTestHelper.newInstance(bugChecker, getClass())",
+        "        .addSourceLines(\"A.java\", \"// BUG: Diagnostic contains:\", \"class A {}\")",
+        "        .doTest();",
+        "",
+        "    BugCheckerRefactoringTestHelper.newInstance(bugChecker, getClass())",
+        "        .addInputLines(\"A.java\", \"class A {}\")",
+        "        .addOutputLines(\"A.java\", \"class A { /* This is a change. */ }\")",
+        "        .doTest();",
+        "  }",
+        "}");
+
+    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
+  }
+
+  @Test
+  void scannerSupplierInstance(@TempDir Path outputDirectory) {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "TestCheckerTest.java",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
+        "import com.google.errorprone.CompilationTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "import com.google.errorprone.scanner.ScannerSupplier;",
+        "",
+        "final class TestCheckerTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance(",
+        "            ScannerSupplier.fromBugCheckerClasses(TestChecker.class), getClass())",
+        "        .addSourceLines(\"A.java\", \"// BUG: Diagnostic contains:\", \"class A {}\")",
+        "        .doTest();",
+        "",
+        "    BugCheckerRefactoringTestHelper.newInstance(",
+        "            ScannerSupplier.fromBugCheckerClasses(TestChecker.class), getClass())",
+        "        .addInputLines(\"A.java\", \"class A {}\")",
+        "        .addOutputLines(\"A.java\", \"class A { /* This is a change. */ }\")",
+        "        .doTest();",
+        "  }",
+        "}");
+
+    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
+  }
+
+  @Test
+  void nonCompileTimeConstantStrings(@TempDir Path outputDirectory) {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "TestCheckerTest.java",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
+        "import com.google.errorprone.CompilationTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "",
+        "final class TestCheckerTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .addSourceLines(toString() + \"A.java\", \"// BUG: Diagnostic contains:\", \"class A {}\")",
+        "        .addSourceLines(\"B.java\", \"// BUG: Diagnostic contains:\", \"class B {}\", toString())",
+        "        .doTest();",
+        "",
+        "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .addInputLines(toString() + \"A.java\", \"class A {}\")",
+        "        .addOutputLines(\"A.java\", \"class A { /* This is a change. */ }\")",
+        "        .addInputLines(\"B.java\", \"class B {}\", toString())",
+        "        .addOutputLines(\"B.java\", \"class B { /* This is a change. */ }\")",
+        "        .addInputLines(\"C.java\", \"class C {}\")",
+        "        .addOutputLines(\"C.java\", \"class C { /* This is a change. */ }\", toString())",
+        "        .doTest();",
+        "  }",
+        "}");
+
+    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
+  }
+
+  @Test
+  void nonFluentTestHelperExpressions(@TempDir Path outputDirectory) {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "TestCheckerTest.java",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
+        "import com.google.errorprone.CompilationTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "",
+        "final class TestCheckerTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    CompilationTestHelper testHelper =",
+        "        CompilationTestHelper.newInstance(TestChecker.class, getClass())",
+        "            .addSourceLines(\"A.java\", \"class A {}\");",
+        "    testHelper.doTest();",
+        "",
+        "    BugCheckerRefactoringTestHelper.ExpectOutput expectedOutput =",
+        "        BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
+        "            .addInputLines(\"A.java\", \"class A {}\");",
+        "    expectedOutput.addOutputLines(\"A.java\", \"class A {}\").doTest();",
+        "    expectedOutput.expectUnchanged().doTest();",
+        "  }",
+        "}");
+
+    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
+  }
+
+  @Test
+  void noSource(@TempDir Path outputDirectory) {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "TestCheckerTest.java",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
+        "import com.google.errorprone.CompilationTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "",
+        "final class TestCheckerTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance(TestChecker.class, getClass()).doTest();",
+        "",
+        "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass()).doTest();",
+        "  }",
+        "}");
+
+    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
+  }
+
+  @Test
+  void noDiagnostics(@TempDir Path outputDirectory) {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "TestCheckerTest.java",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
+        "import com.google.errorprone.CompilationTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "",
+        "final class TestCheckerTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .addSourceLines(\"A.java\", \"class A {}\")",
+        "        .doTest();",
+        "",
         "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
         "        .addInputLines(\"A.java\", \"class A {}\")",
         "        .addOutputLines(\"A.java\", \"class A {}\")",
         "        .addInputLines(\"B.java\", \"class B {}\")",
-        "        .addOutputLines(\"B.java\", \"class B {}\")",
-        "        .doTest(TestMode.TEXT_MATCH);",
-        "  }",
-        "}");
-
-    verifyFileMatchesResource(
-        outputDirectory,
-        "bugpattern-test-TestCheckerTest.json",
-        "bugpattern-test-documentation-replacement-two-sources.json");
-  }
-
-  @Test
-  void bugPatternReplacementExpectUnchanged(@TempDir Path outputDirectory) throws IOException {
-    Compilation.compileWithDocumentationGenerator(
-        outputDirectory,
-        "TestCheckerTest.java",
-        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
-        "import com.google.errorprone.BugCheckerRefactoringTestHelper.TestMode;",
-        "import com.google.errorprone.bugpatterns.BugChecker;",
-        "import org.junit.jupiter.api.Test;",
-        "",
-        "final class TestCheckerTest {",
-        "  private static class TestChecker extends BugChecker {}",
-        "",
-        "  @Test",
-        "  void replacement() {",
-        "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
-        "        .addInputLines(\"A.java\", \"class A {}\")",
         "        .expectUnchanged()",
-        "        .doTest(TestMode.TEXT_MATCH);",
-        "  }",
-        "}");
-
-    verifyFileMatchesResource(
-        outputDirectory,
-        "bugpattern-test-TestCheckerTest.json",
-        "bugpattern-test-documentation-replacement-expect-unchanged.json");
-  }
-
-  @Test
-  void bugPatternTestIdentificationAndReplacement(@TempDir Path outputDirectory)
-      throws IOException {
-    Compilation.compileWithDocumentationGenerator(
-        outputDirectory,
-        "TestCheckerTest.java",
-        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
-        "import com.google.errorprone.BugCheckerRefactoringTestHelper.TestMode;",
-        "import com.google.errorprone.bugpatterns.BugChecker;",
-        "import com.google.errorprone.CompilationTestHelper;",
-        "import org.junit.jupiter.api.Test;",
-        "",
-        "final class TestCheckerTest {",
-        "  private static class TestChecker extends BugChecker {}",
-        "",
-        "  @Test",
-        "  void identification() {",
-        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
-        "        .addSourceLines(\"A.java\", \"class A {}\")",
         "        .doTest();",
         "  }",
+        "}");
+
+    assertThat(outputDirectory.toAbsolutePath()).isEmptyDirectory();
+  }
+
+  @Test
+  void singleFileCompilationTestHelper(@TempDir Path outputDirectory) throws IOException {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "SingleFileCompilationTestHelperTest.java",
+        "import com.google.errorprone.CompilationTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
         "",
-        "  @Test",
-        "  void replacement() {",
+        "final class SingleFileCompilationTestHelperTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .addSourceLines(\"A.java\", \"// BUG: Diagnostic contains:\", \"class A {}\")",
+        "        .doTest();",
+        "  }",
+        "}");
+
+    verifyGeneratedFileContent(outputDirectory, "SingleFileCompilationTestHelperTest");
+  }
+
+  @Test
+  void singleFileCompilationTestHelperWithSetArgs(@TempDir Path outputDirectory)
+      throws IOException {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "SingleFileCompilationTestHelperWithSetArgsTest.java",
+        "import com.google.errorprone.CompilationTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "",
+        "final class SingleFileCompilationTestHelperWithSetArgsTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .setArgs(\"-XepAllSuggestionsAsWarnings\")",
+        "        .addSourceLines(\"A.java\", \"// BUG: Diagnostic contains:\", \"class A {}\")",
+        "        .doTest();",
+        "  }",
+        "}");
+
+    verifyGeneratedFileContent(outputDirectory, "SingleFileCompilationTestHelperWithSetArgsTest");
+  }
+
+  @Test
+  void multiFileCompilationTestHelper(@TempDir Path outputDirectory) throws IOException {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "MultiFileCompilationTestHelperTest.java",
+        "import com.google.errorprone.CompilationTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "",
+        "final class MultiFileCompilationTestHelperTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .addSourceLines(\"A.java\", \"// BUG: Diagnostic contains:\", \"class A {}\")",
+        "        .addSourceLines(\"B.java\", \"// BUG: Diagnostic contains:\", \"class B {}\")",
+        "        .doTest();",
+        "  }",
+        "}");
+
+    verifyGeneratedFileContent(outputDirectory, "MultiFileCompilationTestHelperTest");
+  }
+
+  @Test
+  void singleFileBugCheckerRefactoringTestHelper(@TempDir Path outputDirectory) throws IOException {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "SingleFileBugCheckerRefactoringTestHelperTest.java",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "",
+        "final class SingleFileBugCheckerRefactoringTestHelperTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
         "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
         "        .addInputLines(\"A.java\", \"class A {}\")",
-        "        .addOutputLines(\"A.java\", \"class A {}\")",
+        "        .addOutputLines(\"A.java\", \"class A { /* This is a change. */ }\")",
+        "        .doTest();",
+        "  }",
+        "}");
+
+    verifyGeneratedFileContent(outputDirectory, "SingleFileBugCheckerRefactoringTestHelperTest");
+  }
+
+  @Test
+  void singleFileBugCheckerRefactoringTestHelperWithSetArgsFixChooserAndCustomTestMode(
+      @TempDir Path outputDirectory) throws IOException {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "SingleFileBugCheckerRefactoringTestHelperWithSetArgsFixChooserAndCustomTestModeTest.java",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper.FixChoosers;",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper.TestMode;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "",
+        "final class SingleFileBugCheckerRefactoringTestHelperWithSetArgsFixChooserAndCustomTestModeTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .setArgs(\"-XepAllSuggestionsAsWarnings\")",
+        "        .setFixChooser(FixChoosers.SECOND)",
+        "        .addInputLines(\"A.java\", \"class A {}\")",
+        "        .addOutputLines(\"A.java\", \"class A { /* This is a change. */ }\")",
         "        .doTest(TestMode.TEXT_MATCH);",
         "  }",
         "}");
 
-    verifyFileMatchesResource(
+    verifyGeneratedFileContent(
         outputDirectory,
-        "bugpattern-test-TestCheckerTest.json",
-        "bugpattern-test-documentation-identification-and-replacement.json");
+        "SingleFileBugCheckerRefactoringTestHelperWithSetArgsFixChooserAndCustomTestModeTest");
   }
 
   @Test
-  void bugPatternTestMultipleIdentificationAndReplacement(@TempDir Path outputDirectory)
+  void multiFileBugCheckerRefactoringTestHelper(@TempDir Path outputDirectory) throws IOException {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "MultiFileBugCheckerRefactoringTestHelperTest.java",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "",
+        "final class MultiFileBugCheckerRefactoringTestHelperTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .addInputLines(\"A.java\", \"class A {}\")",
+        "        .addOutputLines(\"A.java\", \"class A { /* This is a change. */ }\")",
+        "        .addInputLines(\"B.java\", \"class B {}\")",
+        "        .addOutputLines(\"B.java\", \"class B { /* This is a change. */ }\")",
+        "        .doTest();",
+        "  }",
+        "}");
+
+    verifyGeneratedFileContent(outputDirectory, "MultiFileBugCheckerRefactoringTestHelperTest");
+  }
+
+  @Test
+  void compilationAndBugCheckerRefactoringTestHelpers(@TempDir Path outputDirectory)
       throws IOException {
     Compilation.compileWithDocumentationGenerator(
         outputDirectory,
-        "TestCheckerTest.java",
+        "CompilationAndBugCheckerRefactoringTestHelpersTest.java",
+        "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
+        "import com.google.errorprone.CompilationTestHelper;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
+        "",
+        "final class CompilationAndBugCheckerRefactoringTestHelpersTest {",
+        "  private static class TestChecker extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .addSourceLines(\"A.java\", \"// BUG: Diagnostic contains:\", \"class A {}\")",
+        "        .doTest();",
+        "",
+        "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
+        "        .addInputLines(\"A.java\", \"class A {}\")",
+        "        .addOutputLines(\"A.java\", \"class A { /* This is a change. */ }\")",
+        "        .doTest();",
+        "  }",
+        "}");
+
+    verifyGeneratedFileContent(
+        outputDirectory, "CompilationAndBugCheckerRefactoringTestHelpersTest");
+  }
+
+  @Test
+  void compilationAndBugCheckerRefactoringTestHelpersWithCustomCheckerPackageAndNames(
+      @TempDir Path outputDirectory) throws IOException {
+    Compilation.compileWithDocumentationGenerator(
+        outputDirectory,
+        "CompilationAndBugCheckerRefactoringTestHelpersWithCustomCheckerPackageAndNamesTest.java",
         "package pkg;",
         "",
-        "import static com.google.errorprone.BugCheckerRefactoringTestHelper.FixChoosers.SECOND;",
-        "",
         "import com.google.errorprone.BugCheckerRefactoringTestHelper;",
-        "import com.google.errorprone.BugCheckerRefactoringTestHelper.TestMode;",
-        "import com.google.errorprone.bugpatterns.BugChecker;",
         "import com.google.errorprone.CompilationTestHelper;",
-        "import org.junit.jupiter.api.Test;",
+        "import com.google.errorprone.bugpatterns.BugChecker;",
         "",
-        "final class TestCheckerTest {",
-        "  private static class TestChecker extends BugChecker {}",
+        "final class CompilationAndBugCheckerRefactoringTestHelpersWithCustomCheckerPackageAndNamesTest {",
+        "  private static class CustomTestChecker extends BugChecker {}",
         "",
-        "  @Test",
-        "  void identification() {",
-        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
-        "        .addSourceLines(\"A.java\", \"class A {}\")",
+        "  private static class CustomTestChecker2 extends BugChecker {}",
+        "",
+        "  void m() {",
+        "    CompilationTestHelper.newInstance(CustomTestChecker.class, getClass())",
+        "        .addSourceLines(\"A.java\", \"// BUG: Diagnostic contains:\", \"class A {}\")",
         "        .doTest();",
-        "  }",
         "",
-        "  @Test",
-        "  void identification2() {",
-        "    CompilationTestHelper.newInstance(TestChecker.class, getClass())",
-        "        .addSourceLines(\"B.java\", \"class B {}\")",
-        "        .doTest();",
-        "  }",
-        "",
-        "  @Test",
-        "  void replacementFirstSuggestedFix() {",
-        "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
+        "    BugCheckerRefactoringTestHelper.newInstance(CustomTestChecker2.class, getClass())",
         "        .addInputLines(\"A.java\", \"class A {}\")",
-        "        .addOutputLines(\"A.java\", \"class A {}\")",
-        "        .doTest(TestMode.TEXT_MATCH);",
-        "  }",
-        "",
-        "  @Test",
-        "  void replacementSecondSuggestedFix() {",
-        "    BugCheckerRefactoringTestHelper.newInstance(TestChecker.class, getClass())",
-        "        .setFixChooser(SECOND)",
-        "        .addInputLines(\"B.java\", \"class B {}\")",
-        "        .addOutputLines(\"B.java\", \"class B {}\")",
-        "        .doTest(TestMode.TEXT_MATCH);",
+        "        .addOutputLines(\"A.java\", \"class A { /* This is a change. */ }\")",
+        "        .doTest();",
         "  }",
         "}");
 
-    verifyFileMatchesResource(
+    verifyGeneratedFileContent(
         outputDirectory,
-        "bugpattern-test-TestCheckerTest.json",
-        "bugpattern-test-documentation-multiple-identification-and-replacement.json");
+        "CompilationAndBugCheckerRefactoringTestHelpersWithCustomCheckerPackageAndNamesTest");
   }
 
-  private static void verifyFileMatchesResource(
-      Path outputDirectory, String fileName, String resourceName) throws IOException {
-    assertThat(outputDirectory.resolve(fileName))
+  private static void verifyGeneratedFileContent(Path outputDirectory, String testClass)
+      throws IOException {
+    String resourceName = String.format("bugpattern-test-%s.json", testClass);
+    assertThat(outputDirectory.resolve(resourceName))
         .content(UTF_8)
-        .isEqualToIgnoringWhitespace(getResource(resourceName));
+        .isEqualToIgnoringWhitespace(
+            getResource(
+                String.join("-", BugPatternTestExtractorTest.class.getSimpleName(), resourceName)));
   }
 
   // XXX: Once we support only JDK 15+, drop this method in favour of including the resources as
-  // text blocks in this class. (This also requires renaming the `verifyFileMatchesResource`
-  // method.)
+  // text blocks in this class.
   private static String getResource(String resourceName) throws IOException {
     return Resources.toString(
         Resources.getResource(BugPatternTestExtractorTest.class, resourceName), UTF_8);
