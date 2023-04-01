@@ -9,7 +9,6 @@ import static com.google.errorprone.BugPattern.SeverityLevel.ERROR;
 import static java.util.Comparator.naturalOrder;
 import static tech.picnic.errorprone.refaster.runner.Refaster.INCLUDED_RULES_PATTERN_FLAG;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableRangeMap;
@@ -124,7 +123,7 @@ public final class RefasterRuleCollection extends BugChecker implements Compilat
     String className = clazz.getSimpleName();
 
     BugCheckerRefactoringTestHelper.newInstance(RefasterRuleCollection.class, clazz)
-        .setArgs(ImmutableList.of("-XepOpt:" + RULE_COLLECTION_FLAG + '=' + className))
+        .setArgs("-XepOpt:" + RULE_COLLECTION_FLAG + '=' + className)
         .addInput(className + "TestInput.java")
         .addOutput(className + "TestOutput.java")
         .doTest(TEXT_MATCH);
