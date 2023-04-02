@@ -8,7 +8,6 @@ import static com.google.errorprone.BugPattern.StandardTags.SIMPLIFICATION;
 import static com.google.errorprone.matchers.Matchers.anyOf;
 import static com.google.errorprone.matchers.Matchers.instanceMethod;
 import static com.google.errorprone.matchers.Matchers.staticMethod;
-import static java.util.function.Predicate.not;
 import static tech.picnic.errorprone.bugpatterns.util.Documentation.BUG_PATTERNS_BASE_URL;
 
 import com.google.auto.service.AutoService;
@@ -38,12 +37,19 @@ import tech.picnic.errorprone.bugpatterns.util.SourceCode;
 
 /**
  * A {@link BugChecker} that flags single-argument method invocations with an iterable of explicitly
- * enumerated values, for which a semantically equivalent varargs variant exists as well.
+ * enumerated values, for which a semantically equivalent varargs variant (appears to) exists as
+ * well.
  *
  * <p>This check drops selected {@link ImmutableSet#of} and {@link Set#of} invocations, with the
  * assumption that these operations do not deduplicate the collection of explicitly enumerated
  * values. It also drops {@link ImmutableMultiset#of} and {@link Set#of} invocations, with the
  * assumption that these do not materially impact iteration order.
+ *
+ * <p>This checker attempts to identify {@link Iterable}-accepting methods for which a varargs
+ * overload exists, and suggests calling the varargs overload instead. This is an imperfect
+ * heuristic, but it e.g. allows invocations of <a
+ * href="https://immutables.github.io/immutable.html#copy-methods">Immutables-generated {@code
+ * with*}</a> methods to be simplified.
  */
 @AutoService(BugChecker.class)
 @BugPattern(
@@ -91,7 +97,7 @@ public final class ExplicitArgumentEnumeration extends BugChecker
     }
 
     MethodSymbol method = ASTHelpers.getSymbol(tree);
-    if (!isUnaryIterableAcceptingMethod(method, state)) {
+    if (!isUnarySubtypeIterableAcceptingMethod(method, state)) {
       return Description.NO_MATCH;
     }
 
@@ -107,30 +113,41 @@ public final class ExplicitArgumentEnumeration extends BugChecker
         .orElse(Description.NO_MATCH);
   }
 
-  private static boolean isUnaryIterableAcceptingMethod(MethodSymbol method, VisitorState state) {
+  private static boolean isUnarySubtypeIterableAcceptingMethod(
+      MethodSymbol method, VisitorState state) {
     List<VarSymbol> params = method.params();
     return !method.isVarArgs()
         && params.size() == 1
         && ASTHelpers.isSubtype(params.get(0).type, state.getSymtab().iterableType, state);
   }
 
-  // XXX: This method does not check that the varargs overload accepts elements of a compatible
-  // type. This does not appear to be a problem in practice, but may require more refined logic or
-  // method exclusion support in the future.
   private static Optional<SuggestedFix> trySuggestCallingVarargsOverload(
       MethodSymbol method, MethodInvocationTree argument, VisitorState state) {
     ImmutableList<MethodSymbol> overloads =
         ASTHelpers.matchingMethods(
                 method.getSimpleName(),
-                not(method::equals),
+                m -> m.isPublic() && !m.equals(method),
                 method.enclClass().type,
                 state.getTypes())
             .collect(toImmutableList());
-    // XXX: This check is too strict. Add jOOQ test case. Explain.
+
+    /*
+     * If all overloads have a single parameter, and at least one of them is a varargs method, then
+     * we assume that unwrapping the iterable argument will cause a suitable overload to be invoked.
+     * (Note that there may be multiple varargs overloads, either with different parameter types, or
+     * due to method overriding; this check is does not attempt to determine which exact method or
+     * overload will be invoked as a result of the suggested simplification.)
+     *
+     * Note that this is a (highly!) imperfect heuristic, but it is sufficient to prevent e.g.
+     * unwrapping of arguments to `org.jooq.impl.DSL#row`, which can cause the expression's return
+     * type to change from `RowN` to (e.g.) `Row2`.
+     */
+    // XXX: There are certainly cases where it _would_ be nice to unwrap the arguments to
+    // `org.jooq.impl.DSL#row(Collection<?>)`. Look into this.
+    // XXX: Ideally we do check that one of the varargs methods accepts the unwrapped arguments.
     boolean hasLikelySuitableVarargsOverload =
         overloads.stream().allMatch(m -> m.params().size() == 1)
-            && overloads.stream()
-                .anyMatch(ExplicitArgumentEnumeration::isVarargsReplacementCandidate);
+            && overloads.stream().anyMatch(MethodSymbol::isVarArgs);
 
     return hasLikelySuitableVarargsOverload
         ? Optional.of(SourceCode.unwrapMethodInvocation(argument, state))
@@ -165,9 +182,5 @@ public final class ExplicitArgumentEnumeration extends BugChecker
                 .merge(SuggestedFixes.renameMethodInvocation(tree, alternative, state))
                 .merge(fix)
                 .build());
-  }
-
-  private static boolean isVarargsReplacementCandidate(MethodSymbol method) {
-    return method.isPublic() && method.isVarArgs() && method.params().size() == 1;
   }
 }
