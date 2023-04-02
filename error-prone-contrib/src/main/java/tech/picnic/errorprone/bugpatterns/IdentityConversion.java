@@ -72,6 +72,7 @@ public final class IdentityConversion extends BugChecker implements MethodInvoca
           staticMethod()
               .onClass("com.google.errorprone.matchers.Matchers")
               .namedAnyOf("allOf", "anyOf"),
+          staticMethod().onClass("com.google.errorprone.refaster.Refaster").namedAnyOf("anyOf"),
           staticMethod().onClass("reactor.adapter.rxjava.RxJava2Adapter"),
           staticMethod()
               .onClass("reactor.core.publisher.Flux")
