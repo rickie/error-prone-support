@@ -26,8 +26,10 @@ final class ErrorProneForkTest {
     CompilationTestHelper.newInstance(TestChecker.class, getClass())
         .addSourceLines(
             "A.java",
-            "// BUG: Diagnostic contains: Suggestions as warnings enabled: false",
-            "class A {}")
+            """
+            // BUG: Diagnostic contains: Suggestions as warnings enabled: false
+            class A {}
+            """)
         .doTest();
   }
 
@@ -41,8 +43,10 @@ final class ErrorProneForkTest {
         .setArgs("-XepAllSuggestionsAsWarnings")
         .addSourceLines(
             "A.java",
-            "// BUG: Diagnostic contains: Suggestions as warnings enabled: true",
-            "class A {}")
+            """
+            // BUG: Diagnostic contains: Suggestions as warnings enabled: true
+            class A {}
+            """)
         .doTest();
   }
 

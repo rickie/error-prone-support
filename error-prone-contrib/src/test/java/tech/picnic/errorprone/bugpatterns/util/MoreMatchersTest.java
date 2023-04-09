@@ -18,32 +18,34 @@ final class MoreMatchersTest {
     CompilationTestHelper.newInstance(TestMatcher.class, getClass())
         .addSourceLines(
             "A.java",
-            "import org.junit.jupiter.api.AfterAll;",
-            "import org.junit.jupiter.api.RepeatedTest;",
-            "import org.junit.jupiter.api.Test;",
-            "import org.junit.jupiter.api.TestTemplate;",
-            "import org.junit.jupiter.params.ParameterizedTest;",
-            "",
-            "class A {",
-            "  void negative1() {}",
-            "",
-            "  @Test",
-            "  void negative2() {}",
-            "",
-            "  @AfterAll",
-            "  void negative3() {}",
-            "",
-            "  @TestTemplate",
-            "  void negative4() {}",
-            "",
-            "  // BUG: Diagnostic contains:",
-            "  @ParameterizedTest",
-            "  void positive1() {}",
-            "",
-            "  // BUG: Diagnostic contains:",
-            "  @RepeatedTest(2)",
-            "  void positive2() {}",
-            "}")
+            """
+            import org.junit.jupiter.api.AfterAll;
+            import org.junit.jupiter.api.RepeatedTest;
+            import org.junit.jupiter.api.Test;
+            import org.junit.jupiter.api.TestTemplate;
+            import org.junit.jupiter.params.ParameterizedTest;
+
+            class A {
+              void negative1() {}
+
+              @Test
+              void negative2() {}
+
+              @AfterAll
+              void negative3() {}
+
+              @TestTemplate
+              void negative4() {}
+
+              // BUG: Diagnostic contains:
+              @ParameterizedTest
+              void positive1() {}
+
+              // BUG: Diagnostic contains:
+              @RepeatedTest(2)
+              void positive2() {}
+            }
+            """)
         .doTest();
   }
 
