@@ -161,6 +161,7 @@
         <version.mockito>5.2.0</version.mockito>
         <version.nopen-checker>1.0.1</version.nopen-checker>
         <version.nullaway>0.10.10</version.nullaway>
+        <version.picocli>4.7.3</version.picocli>
         <version.pitest-git>1.0.7</version.pitest-git>
         <version.surefire>3.0.0</version.surefire>
     </properties>
@@ -305,6 +306,16 @@
                 <version>${version.nullaway}</version>
             </dependency>
             <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${version.picocli}</version>
+            </dependency>
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli-shell-jline3</artifactId>
+                <version>${version.picocli}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.projectreactor</groupId>
                 <artifactId>reactor-bom</artifactId>
                 <version>2022.0.5</version>
@@ -379,6 +390,11 @@
                 <version>3.33.0</version>
             </dependency>
             <dependency>
+                <groupId>org.fusesource.jansi</groupId>
+                <artifactId>jansi</artifactId>
+                <version>2.4.0</version>
+            </dependency>
+            <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest-core</artifactId>
                 <version>2.2</version>
@@ -387,6 +403,11 @@
                 <groupId>org.immutables</groupId>
                 <artifactId>value-annotations</artifactId>
                 <version>2.9.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jline</groupId>
+                <artifactId>jline</artifactId>
+                <version>3.23.0</version>
             </dependency>
             <dependency>
                 <groupId>org.jspecify</groupId>
