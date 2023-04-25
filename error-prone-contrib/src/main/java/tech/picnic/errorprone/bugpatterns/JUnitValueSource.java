@@ -130,15 +130,15 @@ public final class JUnitValueSource extends BugChecker implements MethodTreeMatc
 
     return findMethodSourceAnnotation(tree, state)
         .flatMap(
-            methodSourceAnnotation ->
-                getSoleLocalFactoryName(methodSourceAnnotation, tree)
+            annotation ->
+                getSoleLocalFactoryName(annotation, tree)
                     .filter(factory -> !hasSiblingReferencingValueFactory(tree, factory, state))
                     .flatMap(factory -> findSiblingWithName(tree, factory, state))
                     .flatMap(
                         factoryMethod ->
                             tryConstructValueSourceFix(
-                                parameterType, methodSourceAnnotation, factoryMethod, state))
-                    .map(fix -> describeMatch(methodSourceAnnotation, fix)))
+                                parameterType, annotation, factoryMethod, state))
+                    .map(fix -> describeMatch(annotation, fix)))
         .orElse(Description.NO_MATCH);
   }
 
@@ -199,14 +199,14 @@ public final class JUnitValueSource extends BugChecker implements MethodTreeMatc
     return getSingleReturnExpression(valueFactoryMethod)
         .flatMap(expression -> tryExtractValueSourceAttributeValue(expression, state))
         .map(
-            valueSourceAttributeValue ->
+            attributeValue ->
                 SuggestedFix.builder()
                     .addImport("org.junit.jupiter.params.provider.ValueSource")
                     .replace(
                         methodSourceAnnotation,
                         String.format(
                             "@ValueSource(%s = %s)",
-                            toValueSourceAttributeName(parameterType), valueSourceAttributeValue))
+                            toValueSourceAttributeName(parameterType), attributeValue))
                     .delete(valueFactoryMethod)
                     .build());
   }

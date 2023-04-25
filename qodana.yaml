@@ -1,0 +1,39 @@
+# XXX: Look into enabling the license audit: https://www.jetbrains.com/help/qodana/qodana-yaml.html#Configure+the+License+audit
+version: 1.0
+# XXX: Assess difference between various linters. Non-community expose IDEA
+# Ultimate rules.
+linter: jetbrains/qodana-jvm-community:2023.1
+# XXX: Enable this?
+# failThreshold: 0
+profile:
+  name: qodana.recommended
+exclude:
+  # XXX: File ticket to disable this check for `@Placeholder`-containing
+  # Refaster rules.
+  - name: AbstractClassNeverImplemented
+  # XXX: Enable this rule if/when it is possible to customize the set of
+  # permissible method name prefixes.
+  - name: BooleanMethodNameMustStartWithQuestion
+  - name: DataFlowIssue
+    paths:
+      - error-prone-contrib/src/main/java/tech/picnic/errorprone/refasterrules
+  # XXX: By default this inspection requires that fields match the pattern
+  # `m_[a-z][A-Za-zd]*`. Figure out how to override this, then able the rule.
+  - name: FieldNamingConvention
+  - name: LocalVariableNamingConvention
+  # XXX: Enable this rule if/when it is possible to customize the minimum class
+  # name length.
+  - name: NewClassNamingConvention
+  # `Matcher`-returning names can start with a question word.
+  - name: NonBooleanMethodNameMayNotStartWithQuestion
+  - name: OptionalUsedAsFieldOrParameterType
+  - name: ParameterNamingConvention
+  - name: PublicMethodNotExposedInInterface
+  - name: TypeMayBeWeakened
+  # The nullary constructor of bug checkers is always defined explicitly,
+  # because we require all public members to be documented.
+  - name: UnnecessaryConstructor
+  - name: UnqualifiedFieldAccess
+  # XXX: Review whether to enable this. See also `-Xep:BetaApi:OFF` in
+  # `pom.xml`.
+  - name: UnstableApiUsage

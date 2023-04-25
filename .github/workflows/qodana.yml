@@ -1,0 +1,29 @@
+# Analyzes the code using JetBrains' Qodana.
+# XXX: Expand this text.
+# XXX: Review whether cron schedule makes sense in this case.
+name: Qodana analysis
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+  schedule:
+    - cron: '0 4 * * 1'
+permissions:
+  contents: read
+jobs:
+  analyze:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3.1.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Perform Qodana analysis
+        uses: JetBrains/qodana-action@v2023.1.0
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+      - name: Update "Code scanning" dashboard
+        uses: github/codeql-action/upload-sarif@v2.2.11
+        with:
+          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
