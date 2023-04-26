@@ -156,10 +156,12 @@ final class BugPatternExtractorTest {
     CompilationTestHelper.newInstance(TestChecker.class, getClass())
         .addSourceLines(
             "TestChecker.java",
-            "import com.google.errorprone.bugpatterns.BugChecker;",
-            "",
-            "// BUG: Diagnostic contains: Can extract: false",
-            "public final class TestChecker extends BugChecker {}")
+            """
+            import com.google.errorprone.bugpatterns.BugChecker;
+
+            // BUG: Diagnostic contains: Can extract: false
+            public final class TestChecker extends BugChecker {}
+            """)
         .doTest();
   }
 

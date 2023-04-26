@@ -12,30 +12,32 @@ final class ScheduledTransactionTraceTest {
     CompilationTestHelper.newInstance(ScheduledTransactionTrace.class, getClass())
         .addSourceLines(
             "A.java",
-            "import com.newrelic.api.agent.Trace;",
-            "import org.springframework.scheduling.annotation.Scheduled;",
-            "",
-            "class A {",
-            "  void notScheduled() {}",
-            "",
-            "  @Scheduled(fixedDelay = 1)",
-            "  // BUG: Diagnostic contains:",
-            "  void scheduledButNotTraced() {}",
-            "",
-            "  @Scheduled(fixedDelay = 1)",
-            "  // BUG: Diagnostic contains:",
-            "  @Trace",
-            "  void scheduledButImproperlyTraced1() {}",
-            "",
-            "  @Scheduled(fixedDelay = 1)",
-            "  // BUG: Diagnostic contains:",
-            "  @Trace(dispatcher = false)",
-            "  void scheduledButImproperlyTraced2() {}",
-            "",
-            "  @Scheduled(fixedDelay = 1)",
-            "  @Trace(dispatcher = true)",
-            "  void scheduledAndProperlyTraced() {}",
-            "}")
+            """
+            import com.newrelic.api.agent.Trace;
+            import org.springframework.scheduling.annotation.Scheduled;
+
+            class A {
+              void notScheduled() {}
+
+              @Scheduled(fixedDelay = 1)
+              // BUG: Diagnostic contains:
+              void scheduledButNotTraced() {}
+
+              @Scheduled(fixedDelay = 1)
+              // BUG: Diagnostic contains:
+              @Trace
+              void scheduledButImproperlyTraced1() {}
+
+              @Scheduled(fixedDelay = 1)
+              // BUG: Diagnostic contains:
+              @Trace(dispatcher = false)
+              void scheduledButImproperlyTraced2() {}
+
+              @Scheduled(fixedDelay = 1)
+              @Trace(dispatcher = true)
+              void scheduledAndProperlyTraced() {}
+            }
+            """)
         .doTest();
   }
 
@@ -45,12 +47,14 @@ final class ScheduledTransactionTraceTest {
         .withClasspath(Scheduled.class)
         .addSourceLines(
             "A.java",
-            "import org.springframework.scheduling.annotation.Scheduled;",
-            "",
-            "class A {",
-            "  @Scheduled(fixedDelay = 1)",
-            "  void scheduledButNotTraced() {}",
-            "}")
+            """
+            import org.springframework.scheduling.annotation.Scheduled;
+
+            class A {
+              @Scheduled(fixedDelay = 1)
+              void scheduledButNotTraced() {}
+            }
+            """)
         .doTest();
   }
 
@@ -59,47 +63,51 @@ final class ScheduledTransactionTraceTest {
     BugCheckerRefactoringTestHelper.newInstance(ScheduledTransactionTrace.class, getClass())
         .addInputLines(
             "A.java",
-            "import com.newrelic.api.agent.Trace;",
-            "import org.springframework.scheduling.annotation.Scheduled;",
-            "",
-            "class A {",
-            "  @Scheduled(fixedDelay = 1)",
-            "  void scheduledButNotTraced() {}",
-            "",
-            "  @Scheduled(fixedDelay = 1)",
-            "  @Trace",
-            "  void scheduledButImproperlyTraced1() {}",
-            "",
-            "  @Scheduled(fixedDelay = 1)",
-            "  @Trace(dispatcher = false)",
-            "  void scheduledButImproperlyTraced2() {}",
-            "",
-            "  @Scheduled(fixedDelay = 1)",
-            "  @Trace(leaf = true)",
-            "  void scheduledButImproperlyTraced3() {}",
-            "}")
+            """
+            import com.newrelic.api.agent.Trace;
+            import org.springframework.scheduling.annotation.Scheduled;
+
+            class A {
+              @Scheduled(fixedDelay = 1)
+              void scheduledButNotTraced() {}
+
+              @Scheduled(fixedDelay = 1)
+              @Trace
+              void scheduledButImproperlyTraced1() {}
+
+              @Scheduled(fixedDelay = 1)
+              @Trace(dispatcher = false)
+              void scheduledButImproperlyTraced2() {}
+
+              @Scheduled(fixedDelay = 1)
+              @Trace(leaf = true)
+              void scheduledButImproperlyTraced3() {}
+            }
+            """)
         .addOutputLines(
             "A.java",
-            "import com.newrelic.api.agent.Trace;",
-            "import org.springframework.scheduling.annotation.Scheduled;",
-            "",
-            "class A {",
-            "  @Trace(dispatcher = true)",
-            "  @Scheduled(fixedDelay = 1)",
-            "  void scheduledButNotTraced() {}",
-            "",
-            "  @Scheduled(fixedDelay = 1)",
-            "  @Trace(dispatcher = true)",
-            "  void scheduledButImproperlyTraced1() {}",
-            "",
-            "  @Scheduled(fixedDelay = 1)",
-            "  @Trace(dispatcher = true)",
-            "  void scheduledButImproperlyTraced2() {}",
-            "",
-            "  @Scheduled(fixedDelay = 1)",
-            "  @Trace(dispatcher = true, leaf = true)",
-            "  void scheduledButImproperlyTraced3() {}",
-            "}")
+            """
+            import com.newrelic.api.agent.Trace;
+            import org.springframework.scheduling.annotation.Scheduled;
+
+            class A {
+              @Trace(dispatcher = true)
+              @Scheduled(fixedDelay = 1)
+              void scheduledButNotTraced() {}
+
+              @Scheduled(fixedDelay = 1)
+              @Trace(dispatcher = true)
+              void scheduledButImproperlyTraced1() {}
+
+              @Scheduled(fixedDelay = 1)
+              @Trace(dispatcher = true)
+              void scheduledButImproperlyTraced2() {}
+
+              @Scheduled(fixedDelay = 1)
+              @Trace(dispatcher = true, leaf = true)
+              void scheduledButImproperlyTraced3() {}
+            }
+            """)
         .doTest(TestMode.TEXT_MATCH);
   }
 }
