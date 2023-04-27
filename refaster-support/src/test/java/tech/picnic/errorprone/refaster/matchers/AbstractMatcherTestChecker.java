@@ -42,10 +42,9 @@ abstract class AbstractMatcherTestChecker extends BugChecker implements Compilat
         }
 
         TreePath path = new TreePath(treePath, tree);
-        if (tree instanceof ExpressionTree) {
-          ExpressionTree expressionTree = (ExpressionTree) tree;
-          if (!isMethodSelect(expressionTree, path)
-              && delegate.matches(expressionTree, state.withPath(path))) {
+        if (tree instanceof ExpressionTree expression) {
+          if (!isMethodSelect(expression, path)
+              && delegate.matches(expression, state.withPath(path))) {
             state.reportMatch(describeMatch(tree));
           }
         }
