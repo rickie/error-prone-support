@@ -1034,6 +1034,10 @@
                             </banDynamicVersions>
                             <dependencyConvergence />
                             <enforceBytecodeVersion>
+                                <ignoredScopes>
+                                    <ignoredScope>provided</ignoredScope>
+                                    <ignoredScope>test</ignoredScope>
+                                </ignoredScopes>
                                 <maxJdkVersion>${version.jdk.target}</maxJdkVersion>
                             </enforceBytecodeVersion>
                             <requireEncoding>
