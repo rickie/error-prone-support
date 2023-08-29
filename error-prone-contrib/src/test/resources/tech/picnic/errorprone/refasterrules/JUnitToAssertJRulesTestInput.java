@@ -1,5 +1,6 @@
 package tech.picnic.errorprone.refasterrules;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -24,12 +25,37 @@ final class JUnitToAssertJRulesTest implements RefasterRuleCollectionTestCase {
         assertInstanceOf(null, null),
         assertThrows(null, null),
         assertThrowsExactly(null, null),
+        (Runnable) () -> assertArrayEquals((int[]) null, null),
         (Runnable) () -> assertFalse(true),
         (Runnable) () -> assertNotNull(null),
         (Runnable) () -> assertNotSame(null, null),
         (Runnable) () -> assertNull(null),
         (Runnable) () -> assertSame(null, null),
         (Runnable) () -> assertTrue(true));
+  }
+
+  void testAssertThatBooleanArrayContainsExactly() {
+    assertArrayEquals(new boolean[] {true}, new boolean[] {false});
+  }
+
+  void testAssertThatBooleanArrayWithFailMessageContainsExactly() {
+    assertArrayEquals(new boolean[] {true}, new boolean[] {false}, "foo");
+  }
+
+  void testAssertThatBooleanArrayWithFailMessageSupplierContainsExactly() {
+    assertArrayEquals(new boolean[] {true}, new boolean[] {false}, () -> "foo");
+  }
+
+  void testAssertThatByteArrayContainsExactly() {
+    assertArrayEquals(new byte[] {1}, new byte[] {2});
+  }
+
+  void testAssertThatByteArrayWithFailMessageContainsExactly() {
+    assertArrayEquals(new byte[] {1}, new byte[] {2}, "foo");
+  }
+
+  void testAssertThatByteArrayWithFailMessageSupplierContainsExactly() {
+    assertArrayEquals(new byte[] {1}, new byte[] {2}, () -> "foo");
   }
 
   void testThrowNewAssertionError() {

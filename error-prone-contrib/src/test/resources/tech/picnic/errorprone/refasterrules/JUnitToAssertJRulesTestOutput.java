@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -28,12 +29,39 @@ final class JUnitToAssertJRulesTest implements RefasterRuleCollectionTestCase {
         assertInstanceOf(null, null),
         assertThrows(null, null),
         assertThrowsExactly(null, null),
+        (Runnable) () -> assertArrayEquals((int[]) null, null),
         (Runnable) () -> assertFalse(true),
         (Runnable) () -> assertNotNull(null),
         (Runnable) () -> assertNotSame(null, null),
         (Runnable) () -> assertNull(null),
         (Runnable) () -> assertSame(null, null),
         (Runnable) () -> assertTrue(true));
+  }
+
+  void testAssertThatBooleanArrayContainsExactly() {
+    assertThat(new boolean[] {false}).containsExactly(new boolean[] {true});
+  }
+
+  void testAssertThatBooleanArrayWithFailMessageContainsExactly() {
+    assertThat(new boolean[] {false}).withFailMessage("foo").containsExactly(new boolean[] {true});
+  }
+
+  void testAssertThatBooleanArrayWithFailMessageSupplierContainsExactly() {
+    assertThat(new boolean[] {false})
+        .withFailMessage(() -> "foo")
+        .containsExactly(new boolean[] {true});
+  }
+
+  void testAssertThatByteArrayContainsExactly() {
+    assertThat(new byte[] {2}).containsExactly(new byte[] {1});
+  }
+
+  void testAssertThatByteArrayWithFailMessageContainsExactly() {
+    assertThat(new byte[] {2}).withFailMessage("foo").containsExactly(new byte[] {1});
+  }
+
+  void testAssertThatByteArrayWithFailMessageSupplierContainsExactly() {
+    assertThat(new byte[] {2}).withFailMessage(() -> "foo").containsExactly(new byte[] {1});
   }
 
   void testThrowNewAssertionError() {
