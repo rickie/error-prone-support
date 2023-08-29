@@ -163,6 +163,22 @@ final class TestNGToAssertJRulesTest implements RefasterRuleCollectionTestCase {
     assertEquals(new Object[0], new Object[0], "garply");
   }
 
+  void testAssertEqualFloatArraysWithDelta() {
+    assertEquals(new float[0], new float[0], 0.0F);
+  }
+
+  void testAssertEqualFloatArraysWithDeltaWithMessage() {
+    assertEquals(new float[0], new float[0], 0.0F, "foo");
+  }
+
+  void testAssertEqualDoubleArraysWithDelta() {
+    assertEquals(new double[0], new double[0], 0.0);
+  }
+
+  void testAssertEqualDoubleArraysWithDeltaWithMessage() {
+    assertEquals(new double[0], new double[0], 0.0, "foo");
+  }
+
   void testAssertEqualArraysIrrespectiveOfOrder() {
     assertEqualsNoOrder(new Object[0], new Object[0]);
   }

@@ -558,6 +558,58 @@ final class TestNGToAssertJRules {
     }
   }
 
+  static final class AssertEqualFloatArraysWithDelta {
+    @BeforeTemplate
+    void before(float[] actual, float[] expected, float delta) {
+      assertEquals(actual, expected, delta);
+    }
+
+    @AfterTemplate
+    @UseImportPolicy(STATIC_IMPORT_ALWAYS)
+    void after(float[] actual, float[] expected, float delta) {
+      assertThat(actual).containsExactly(expected, offset(delta));
+    }
+  }
+
+  static final class AssertEqualFloatArraysWithDeltaWithMessage {
+    @BeforeTemplate
+    void before(float[] actual, float[] expected, float delta, String message) {
+      assertEquals(actual, expected, delta, message);
+    }
+
+    @AfterTemplate
+    @UseImportPolicy(STATIC_IMPORT_ALWAYS)
+    void after(float[] actual, float[] expected, float delta, String message) {
+      assertThat(actual).withFailMessage(message).containsExactly(expected, offset(delta));
+    }
+  }
+
+  static final class AssertEqualDoubleArraysWithDelta {
+    @BeforeTemplate
+    void before(double[] actual, double[] expected, double delta) {
+      assertEquals(actual, expected, delta);
+    }
+
+    @AfterTemplate
+    @UseImportPolicy(STATIC_IMPORT_ALWAYS)
+    void after(double[] actual, double[] expected, double delta) {
+      assertThat(actual).containsExactly(expected, offset(delta));
+    }
+  }
+
+  static final class AssertEqualDoubleArraysWithDeltaWithMessage {
+    @BeforeTemplate
+    void before(double[] actual, double[] expected, double delta, String message) {
+      assertEquals(actual, expected, delta, message);
+    }
+
+    @AfterTemplate
+    @UseImportPolicy(STATIC_IMPORT_ALWAYS)
+    void after(double[] actual, double[] expected, double delta, String message) {
+      assertThat(actual).withFailMessage(message).containsExactly(expected, offset(delta));
+    }
+  }
+
   static final class AssertEqualArraysIrrespectiveOfOrder {
     @BeforeTemplate
     void before(Object[] actual, Object[] expected) {

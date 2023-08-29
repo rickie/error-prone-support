@@ -168,6 +168,22 @@ final class TestNGToAssertJRulesTest implements RefasterRuleCollectionTestCase {
     assertThat(new Object[0]).withFailMessage("garply").containsExactly(new Object[0]);
   }
 
+  void testAssertEqualFloatArraysWithDelta() {
+    assertThat(new float[0]).containsExactly(new float[0], offset(0.0F));
+  }
+
+  void testAssertEqualFloatArraysWithDeltaWithMessage() {
+    assertThat(new float[0]).withFailMessage("foo").containsExactly(new float[0], offset(0.0F));
+  }
+
+  void testAssertEqualDoubleArraysWithDelta() {
+    assertThat(new double[0]).containsExactly(new double[0], offset(0.0));
+  }
+
+  void testAssertEqualDoubleArraysWithDeltaWithMessage() {
+    assertThat(new double[0]).withFailMessage("foo").containsExactly(new double[0], offset(0.0));
+  }
+
   void testAssertEqualArraysIrrespectiveOfOrder() {
     assertThat(new Object[0]).containsExactlyInAnyOrder(new Object[0]);
   }
