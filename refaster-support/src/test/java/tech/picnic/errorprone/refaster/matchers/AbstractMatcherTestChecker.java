@@ -97,7 +97,7 @@ abstract class AbstractMatcherTestChecker extends BugChecker implements Compilat
     }
 
     Tree parentTree = parentPath.getLeaf();
-    return parentTree instanceof MethodInvocationTree
-        && ((MethodInvocationTree) parentTree).getMethodSelect().equals(tree);
+    return parentTree instanceof MethodInvocationTree methodInvocation
+        && methodInvocation.getMethodSelect().equals(tree);
   }
 }
