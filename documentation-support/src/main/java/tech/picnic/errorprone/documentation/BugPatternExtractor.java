@@ -4,6 +4,7 @@ import static com.google.common.base.Verify.verify;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Objects.requireNonNull;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.common.AnnotationMirrors;
 import com.google.auto.service.AutoService;
 import com.google.auto.value.AutoValue;
@@ -17,6 +18,7 @@ import com.sun.source.tree.AnnotationTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
+import java.net.URI;
 import java.util.Optional;
 import javax.lang.model.element.AnnotationValue;
 import tech.picnic.errorprone.documentation.BugPatternExtractor.BugPatternDocumentation;
@@ -46,6 +48,7 @@ public final class BugPatternExtractor implements Extractor<BugPatternDocumentat
 
     return Optional.of(
         new AutoValue_BugPatternExtractor_BugPatternDocumentation(
+            state.getPath().getCompilationUnit().getSourceFile().toUri(),
             symbol.getQualifiedName().toString(),
             annotation.name().isEmpty() ? tree.getSimpleName().toString() : annotation.name(),
             ImmutableList.copyOf(annotation.altNames()),
@@ -91,7 +94,10 @@ public final class BugPatternExtractor implements Extractor<BugPatternDocumentat
   }
 
   @AutoValue
+  @JsonDeserialize(as = AutoValue_BugPatternExtractor_BugPatternDocumentation.class)
   abstract static class BugPatternDocumentation {
+    abstract URI source();
+
     abstract String fullyQualifiedName();
 
     abstract String name();

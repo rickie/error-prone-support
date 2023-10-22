@@ -1,16 +1,18 @@
 package tech.picnic.errorprone.documentation.models;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import java.util.List;
-import tech.picnic.errorprone.documentation.models.AutoValue_RefasterTemplateCollectionData;
 
 /**
  * Object containing all data related to a Refaster template collection. This is solely used for
  * serialization.
  */
+// XXX: This class is not yet used.
 @AutoValue
+@JsonDeserialize(as = AutoValue_RefasterTemplateCollectionData.class)
 public abstract class RefasterTemplateCollectionData {
-  public static RefasterTemplateCollectionData create(
+  static RefasterTemplateCollectionData create(
       String name, String description, String link, List<RefasterTemplateData> templates) {
     return new AutoValue_RefasterTemplateCollectionData(name, description, link, templates);
   }

@@ -45,6 +45,18 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-parameter-names</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.auto</groupId>
             <artifactId>auto-common</artifactId>
         </dependency>
@@ -88,4 +100,29 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>generate-docs</id>
+                            <goals>
+                                <goal>java</goal>
+                            </goals>
+                            <configuration>
+                                <mainClass>tech.picnic.errorprone.documentation.JekyllCollectionGenerator</mainClass>
+                                <arguments>
+                                    <argument>${maven.multiModuleProjectDirectory}</argument>
+                                </arguments>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>

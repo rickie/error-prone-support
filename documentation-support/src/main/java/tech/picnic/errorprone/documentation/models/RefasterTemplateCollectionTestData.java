@@ -1,10 +1,13 @@
 package tech.picnic.errorprone.documentation.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import java.util.List;
-import tech.picnic.errorprone.documentation.models.AutoValue_RefasterTemplateCollectionTestData;
 
+// XXX: Make properties package-private if type is moved to shared package.
 @AutoValue
+@JsonDeserialize(as = AutoValue_RefasterTemplateCollectionTestData.class)
 public abstract class RefasterTemplateCollectionTestData {
   public static RefasterTemplateCollectionTestData create(
       String templateCollection, boolean isInput, List<RefasterTemplateTestData> templatesTests) {
@@ -12,9 +15,11 @@ public abstract class RefasterTemplateCollectionTestData {
         templateCollection, isInput, templatesTests);
   }
 
-  abstract String templateCollection();
+  public abstract String templateCollection();
 
-  abstract boolean isInput();
+  // XXX: This annotation prevents serialization of fields `isInput` *and* `input`. Review.
+  @JsonProperty("isInput")
+  public abstract boolean isInput();
 
-  abstract List<RefasterTemplateTestData> templateTests();
+  public abstract List<RefasterTemplateTestData> templateTests();
 }

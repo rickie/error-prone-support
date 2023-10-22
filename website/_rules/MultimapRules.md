@@ -10,7 +10,7 @@ rules:
   severity: SUGGESTION
   tags:
   - Simplification
-  diff: |2
+  diff: |2-
      Set<String> testMultimapKeySet() {
     -    return ImmutableSetMultimap.of("foo", "bar").asMap().keySet();
     +    return ImmutableSetMultimap.of("foo", "bar").keySet();
@@ -19,7 +19,7 @@ rules:
   severity: SUGGESTION
   tags:
   - Simplification
-  diff: |2
+  diff: |2-
      int testMultimapSize() {
     -    return ImmutableSetMultimap.of().values().size();
     +    return ImmutableSetMultimap.of().size();
@@ -28,7 +28,7 @@ rules:
   severity: SUGGESTION
   tags:
   - Simplification
-  diff: |2
+  diff: |2-
      ImmutableSet<Collection<Integer>> testMultimapGet() {
          return ImmutableSet.of(
     -        ImmutableSetMultimap.of(1, 2).asMap().get(1),

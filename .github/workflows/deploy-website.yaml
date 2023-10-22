@@ -32,6 +32,9 @@ jobs:
         # module `docgen` has no errors.
         run: mvn -T1C clean install -DskipTests -Dverification.warn -Pdocgen
       - name: Generate documentation
+        run: mvn exec:java@generate-docs -pl documentation-support
+      - name: Generate documentation
+        # XXX: Drop this step and associated logic
         working-directory: ./website
         run: bundle exec ruby generate-docs.rb
       - name: Upload website as artifact

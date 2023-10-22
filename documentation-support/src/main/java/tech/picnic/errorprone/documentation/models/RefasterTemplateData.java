@@ -1,12 +1,14 @@
 package tech.picnic.errorprone.documentation.models;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.errorprone.BugPattern.SeverityLevel;
-import tech.picnic.errorprone.documentation.models.AutoValue_RefasterTemplateData;
 
+// XXX: This class is not yet used.
 @AutoValue
+@JsonDeserialize(as = AutoValue_RefasterTemplateData.class)
 public abstract class RefasterTemplateData {
-  public static RefasterTemplateData create(
+  static RefasterTemplateData create(
       String name, String description, String link, SeverityLevel severityLevel) {
     return new AutoValue_RefasterTemplateData(name, description, link, severityLevel);
   }

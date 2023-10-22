@@ -15,6 +15,7 @@ import tech.picnic.errorprone.documentation.models.RefasterTemplateTestData;
 
 @Immutable
 @AutoService(Extractor.class)
+@SuppressWarnings("rawtypes" /* See https://github.com/google/auto/issues/870. */)
 public final class RefasterTestOutputExtractor
     implements Extractor<RefasterTemplateCollectionTestData> {
   private static final Pattern TEST_CLASS_NAME_PATTERN = Pattern.compile("(.*)Test");
@@ -27,7 +28,9 @@ public final class RefasterTestOutputExtractor
   @Override
   public Optional<RefasterTemplateCollectionTestData> tryExtract(
       ClassTree tree, VisitorState state) {
-    if (!state.getPath().getCompilationUnit().getPackageName().toString().contains("output")) {
+    // XXX: The `String.valueOf` call is a hack to avoid an NPE in the absence of an explicit
+    // package declaration.
+    if (!String.valueOf(state.getPath().getCompilationUnit().getPackageName()).contains("output")) {
       return Optional.empty();
     }
 
@@ -48,7 +51,7 @@ public final class RefasterTestOutputExtractor
             .collect(toImmutableList());
 
     return Optional.of(
-        RefasterTemplateCollectionTestData.create(className.orElseThrow(), true, templateTests));
+        RefasterTemplateCollectionTestData.create(className.orElseThrow(), false, templateTests));
   }
 
   private static Optional<String> getClassUnderTest(ClassTree tree) {
