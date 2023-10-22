@@ -12,37 +12,34 @@ plugins:
 
 # Files and directories not to be deployed through GitHub pages.
 exclude:
-- _templates
 - Gemfile
 - Gemfile.lock
-- generate-docs.rb
 - README.md
 - vendor
 
-# XXX: Rename collections to `bugpatterns` and `refasterrules`.
 collections:
-  checks:
+  bugpatterns:
     output: true
-  rules:
+  refasterrules:
     output: true
 
 defaults:
 - scope:
-    type: "checks"
+    type: "bugpatterns"
   values:
-    layout: "check"
+    layout: "bugpattern"
 - scope:
-    type: "rules"
+    type: "refasterrules"
   values:
-    layout: "rule"
+    layout: "refasterrule"
 
 just_the_docs:
   collections:
-    checks:
-      name: Checks
+    bugpatterns:
+      name: Bug Patterns
       nav_fold: true
-    rules:
-      name: Rules
+    refasterrules:
+      name: Refaster Rules
       nav_fold: true
 
 # See https://jekyllrb.com/docs/permalinks/#built-in-formats.

@@ -2,12 +2,6 @@ ruby File.read(".ruby-version").strip
 
 source "https://rubygems.org"
 
-group :site_content_generation_dependencies do
-  gem "diffy", "3.4.0"
-  gem "json", "2.6.3"
-  gem "mustache", "1.1.1"
-end
-
 group :jekyll_site_dependencies do
   gem "jekyll", "4.3.2"
   gem "jekyll-sitemap", "1.4.0"

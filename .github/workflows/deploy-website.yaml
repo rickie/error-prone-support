@@ -24,7 +24,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@0ab4596768b603586c0de567f2430c30f5b0d2b0 # v3.13.0
         with:
-          java-version: 17.0.4
+          java-version: 17.0.8
           distribution: temurin
           cache: maven
       - name: Compile project and extract data
@@ -33,10 +33,12 @@ jobs:
         run: mvn -T1C clean install -DskipTests -Dverification.warn -Pdocgen
       - name: Generate documentation
         run: mvn exec:java@generate-docs -pl documentation-support
-      - name: Generate documentation
-        # XXX: Drop this step and associated logic
+      - name: Build website with Jekyll
         working-directory: ./website
-        run: bundle exec ruby generate-docs.rb
+        run: bundle exec jekyll build
+      - name: Validate HTML output
+        working-directory: ./website
+        run: bundle exec htmlproofer --no-check-external-hash ./_site
       - name: Upload website as artifact
         uses: actions/upload-pages-artifact@a753861a5debcf57bf8b404356158c8e1e33150c # v2.0.0
         with:

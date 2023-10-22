@@ -48,6 +48,7 @@ import tech.picnic.errorprone.documentation.BugPatternTestExtractor.TestEntry.Ty
 import tech.picnic.errorprone.documentation.models.RefasterTemplateCollectionTestData;
 import tech.picnic.errorprone.documentation.models.RefasterTemplateTestData;
 
+// XXX: Rename this class. Then also update the reference in `website/.gitignore`.
 public final class JekyllCollectionGenerator {
   // XXX: Dedup with DocumentationGeneratorTaskListener.
   private static final ObjectMapper OBJECT_MAPPER =
@@ -136,9 +137,11 @@ public final class JekyllCollectionGenerator {
               .build();
 
       for (JekyllBugPatternDescription check : checks) {
+        Path directory = root.resolve("website").resolve("_bugpatterns");
+        Files.createDirectories(directory);
         try (BufferedWriter writer =
             Files.newBufferedWriter(
-                root.resolve("website").resolve("_checks").resolve(check.name() + ".md"))) {
+                directory.resolve(check.name() + ".md"))) {
           mapper.writeValue(writer, check);
           writer.write("---");
           writer.newLine();
@@ -147,9 +150,11 @@ public final class JekyllCollectionGenerator {
 
       // XXX: Dedup this logic and the code above.
       for (JekyllRefasterRuleCollectionDescription rule : rules) {
+        Path directory = root.resolve("website").resolve("_refasterrules");
+        Files.createDirectories(directory);
         try (BufferedWriter writer =
             Files.newBufferedWriter(
-                root.resolve("website").resolve("_rules").resolve(rule.name() + ".md"))) {
+                directory.resolve(rule.name() + ".md"))) {
           mapper.writeValue(writer, rule);
           writer.write("---");
           writer.newLine();
