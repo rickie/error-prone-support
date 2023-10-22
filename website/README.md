@@ -22,7 +22,7 @@ Then to build the website for local development, execute in this directory:
 
 ```sh
 bundle install
-bundle exec jekyll serve --livereload --incremental
+bundle exec jekyll serve --livereload
 ```
 
 The website will now be [available][localhost-port-4000] on port 4000. Source

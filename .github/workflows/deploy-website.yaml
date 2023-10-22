@@ -28,9 +28,7 @@ jobs:
           distribution: temurin
           cache: maven
       - name: Compile project and extract data
-        # XXX: Remove `-Dverification.warn` and update `website/README.md` once
-        # module `docgen` has no errors.
-        run: mvn -T1C clean install -DskipTests -Dverification.warn -Pdocgen
+        run: mvn -T1C clean install -DskipTests -Dverification.skip -Pdocgen
       - name: Generate documentation
         run: mvn exec:java@generate-docs -pl documentation-support
       - name: Build website with Jekyll

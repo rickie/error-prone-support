@@ -263,6 +263,7 @@
         </pluginManagement>
     </build>
 
+    <!-- XXX: Drop this hack; then also drop any references to `docgen`. -->
     <profiles>
         <profile>
             <id>docgen</id>

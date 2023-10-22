@@ -25,7 +25,7 @@ layout: default
 {: .note-title }
 > Suppression
 >
-> Disable all rules by adding `-XepOpt:Refaster:NamePattern=^(?!{{page.name}}\$).*` as 
+> Disable all rules by adding `-XepOpt:Refaster:NamePattern=^(?!{{page.name}}\$).*` as
 > compiler argument.
 {% comment %}
   # XXX: Create an internal page on documenting the usage of compiler flags.
@@ -54,10 +54,10 @@ layout: default
 {: .note-title }
 > Suppression
 >
-> Suppress false positives by adding the suppression annotation `@SuppressWarnings("{{rule.name}}")` to 
+> Suppress false positives by adding the suppression annotation `@SuppressWarnings("{{rule.name}}")` to
 > the enclosing element.
 >
-> Disable this rule by adding `-XepOpt:Refaster:NamePattern=^(?!{{page.name}}\${{rule.name}}).*` 
+> Disable this rule by adding `-XepOpt:Refaster:NamePattern=^(?!{{page.name}}\${{rule.name}}).*`
 > as compiler argument.
 {% comment %}
   # XXX: Create an internal page on documenting the usage of compiler flags.

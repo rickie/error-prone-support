@@ -2,7 +2,7 @@ package tech.picnic.errorprone.documentation.models;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Object containing all data related to a Refaster template collection. This is solely used for
@@ -13,7 +13,7 @@ import java.util.List;
 @JsonDeserialize(as = AutoValue_RefasterTemplateCollectionData.class)
 public abstract class RefasterTemplateCollectionData {
   static RefasterTemplateCollectionData create(
-      String name, String description, String link, List<RefasterTemplateData> templates) {
+      String name, String description, String link, ImmutableList<RefasterTemplateData> templates) {
     return new AutoValue_RefasterTemplateCollectionData(name, description, link, templates);
   }
 
@@ -23,5 +23,5 @@ public abstract class RefasterTemplateCollectionData {
 
   abstract String link();
 
-  abstract List<RefasterTemplateData> templates();
+  abstract ImmutableList<RefasterTemplateData> templates();
 }

@@ -38,7 +38,7 @@ layout: default
 {: .note-title }
 > Suppression
 >
-> Suppress false positives by adding the suppression annotation `@SuppressWarnings("{{ page.name }}")` to 
+> Suppress false positives by adding the suppression annotation `@SuppressWarnings("{{ page.name }}")` to
 > the enclosing element.
 >
 > Disable this pattern completely by adding `-Xep:{{ page.name }}:OFF` as compiler argument.

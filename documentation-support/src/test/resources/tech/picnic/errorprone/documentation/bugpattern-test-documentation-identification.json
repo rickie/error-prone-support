@@ -1,7 +1,0 @@
-{
-  "name": "TestChecker",
-  "identificationTests": [
-    "class A {}\n"
-  ],
-  "replacementTests": []
-}

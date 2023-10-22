@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableListMultimap.flatteningToImmutableListMultimap;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableTable.toImmutableTable;
+import static com.google.errorprone.BugPattern.SeverityLevel.SUGGESTION;
 import static java.util.stream.Collectors.joining;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -44,7 +45,6 @@ import tech.picnic.errorprone.documentation.BugPatternTestExtractor.ReplacementT
 import tech.picnic.errorprone.documentation.BugPatternTestExtractor.TestCase;
 import tech.picnic.errorprone.documentation.BugPatternTestExtractor.TestCases;
 import tech.picnic.errorprone.documentation.BugPatternTestExtractor.TestEntry;
-import tech.picnic.errorprone.documentation.BugPatternTestExtractor.TestEntry.Type;
 import tech.picnic.errorprone.documentation.models.RefasterTemplateCollectionTestData;
 import tech.picnic.errorprone.documentation.models.RefasterTemplateTestData;
 
@@ -58,6 +58,9 @@ public final class JekyllCollectionGenerator {
   // XXX: Find a bette name. Also, externalize this.
   private static final PathMatcher PATH_MATCHER =
       FileSystems.getDefault().getPathMatcher("glob:**/target/docs/*.json");
+
+  // XXX: Review class setup.
+  private JekyllCollectionGenerator() {}
 
   public static void main(String[] args) throws IOException {
     // XXX: Add validation.
@@ -80,8 +83,6 @@ public final class JekyllCollectionGenerator {
       writer.write("layout: default");
       writer.newLine();
       writer.write("title: Home");
-      writer.newLine();
-      writer.write("nav_order: 1");
       writer.newLine();
       writer.write("---");
       writer.newLine();
@@ -140,8 +141,7 @@ public final class JekyllCollectionGenerator {
         Path directory = root.resolve("website").resolve("_bugpatterns");
         Files.createDirectories(directory);
         try (BufferedWriter writer =
-            Files.newBufferedWriter(
-                directory.resolve(check.name() + ".md"))) {
+            Files.newBufferedWriter(directory.resolve(check.name() + ".md"))) {
           mapper.writeValue(writer, check);
           writer.write("---");
           writer.newLine();
@@ -153,8 +153,7 @@ public final class JekyllCollectionGenerator {
         Path directory = root.resolve("website").resolve("_refasterrules");
         Files.createDirectories(directory);
         try (BufferedWriter writer =
-            Files.newBufferedWriter(
-                directory.resolve(rule.name() + ".md"))) {
+            Files.newBufferedWriter(directory.resolve(rule.name() + ".md"))) {
           mapper.writeValue(writer, rule);
           writer.write("---");
           writer.newLine();
@@ -182,11 +181,11 @@ public final class JekyllCollectionGenerator {
                       // XXX: Derive `Path` from filesytem.
                       Path.of(b.source()).toString(),
                       bugPatternTestCases.get(b.fullyQualifiedName()).stream()
-                          .filter(t -> t.type() == Type.IDENTIFICATION)
+                          .filter(t -> t.type() == TestEntry.TestType.IDENTIFICATION)
                           .map(t -> ((IdentificationTestEntry) t).code())
                           .collect(toImmutableList()),
                       bugPatternTestCases.get(b.fullyQualifiedName()).stream()
-                          .filter(t -> t.type() == Type.REPLACEMENT)
+                          .filter(t -> t.type() == TestEntry.TestType.REPLACEMENT)
                           .map(t -> generateDiff((ReplacementTestEntry) t))
                           .collect(toImmutableList())))
           .collect(toImmutableList());
@@ -209,7 +208,7 @@ public final class JekyllCollectionGenerator {
                       c.getKey(),
                       c.getKey(),
                       // XXX: Derive severity from input.
-                      SeverityLevel.SUGGESTION,
+                      SUGGESTION,
                       // XXX: Derive tags from input (or drop this feature).
                       ImmutableList.of("Simplification"),
                       // XXX: Derive source location from input.
@@ -232,7 +231,7 @@ public final class JekyllCollectionGenerator {
                   new AutoValue_JekyllCollectionGenerator_JekyllRefasterRuleCollectionDescription_Rule(
                       name,
                       // XXX: Derive severity from input.
-                      SeverityLevel.SUGGESTION,
+                      SUGGESTION,
                       // XXX: Derive tags from input (or drop this feature).
                       ImmutableList.of("Simplification"),
                       generateDiff(inputs.get(name), outputs.get(name))))

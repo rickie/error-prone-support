@@ -9,6 +9,7 @@ import com.google.errorprone.annotations.Immutable;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.MethodTree;
 import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import tech.picnic.errorprone.documentation.models.RefasterTemplateCollectionTestData;
 import tech.picnic.errorprone.documentation.models.RefasterTemplateTestData;
@@ -41,7 +42,7 @@ public final class RefasterTestInputExtractor
 
     ImmutableList<RefasterTemplateTestData> templateTests =
         tree.getMembers().stream()
-            .filter(m -> m instanceof MethodTree)
+            .filter(MethodTree.class::isInstance)
             .map(MethodTree.class::cast)
             .filter(m -> m.getName().toString().startsWith("test"))
             .map(
@@ -51,17 +52,18 @@ public final class RefasterTestInputExtractor
             .collect(toImmutableList());
 
     return Optional.of(
-        RefasterTemplateCollectionTestData.create(className.orElseThrow(), true, templateTests));
+        RefasterTemplateCollectionTestData.create(
+            className.orElseThrow(), /* isInput= */ true, templateTests));
   }
 
   private static Optional<String> getClassUnderTest(ClassTree tree) {
     return Optional.of(TEST_CLASS_NAME_PATTERN.matcher(tree.getSimpleName().toString()))
-        .filter(java.util.regex.Matcher::matches)
+        .filter(Matcher::matches)
         .map(m -> m.group(1));
   }
 
   // XXX: Duplicated from `SourceCode`. Can we do better?
-  private String getSourceCode(MethodTree tree, VisitorState state) {
+  private static String getSourceCode(MethodTree tree, VisitorState state) {
     String src = state.getSourceForNode(tree);
     return src != null ? src : tree.toString();
   }

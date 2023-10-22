@@ -8,10 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.service.AutoService;
 import com.google.auto.value.AutoValue;
@@ -209,6 +207,9 @@ public final class BugPatternTestExtractor implements Extractor<TestCases> {
     }
   }
 
+  // XXX: Here and below: Test (serialization round trips. And given that the only "production"
+  // reader of the serialized data is also defined in this package, perhaps we don't need to
+  // validate the serialized format.
   @AutoValue
   @JsonDeserialize(as = AutoValue_BugPatternTestExtractor_TestCases.class)
   abstract static class TestCases {
@@ -228,18 +229,18 @@ public final class BugPatternTestExtractor implements Extractor<TestCases> {
   }
 
   @JsonSubTypes({
-    @Type(AutoValue_BugPatternTestExtractor_IdentificationTestEntry.class),
-    @Type(AutoValue_BugPatternTestExtractor_ReplacementTestEntry.class)
+    @JsonSubTypes.Type(AutoValue_BugPatternTestExtractor_IdentificationTestEntry.class),
+    @JsonSubTypes.Type(AutoValue_BugPatternTestExtractor_ReplacementTestEntry.class)
   })
-  @JsonTypeInfo(include = As.EXISTING_PROPERTY, property = "type", use = Id.DEDUCTION)
+  @JsonTypeInfo(include = As.EXISTING_PROPERTY, property = "type", use = JsonTypeInfo.Id.DEDUCTION)
   @JsonIgnoreProperties(ignoreUnknown = true)
   @JsonPropertyOrder("type")
   interface TestEntry {
-    Type type();
+    TestType type();
 
     String path();
 
-    enum Type {
+    enum TestType {
       IDENTIFICATION,
       REPLACEMENT
     }
@@ -247,10 +248,10 @@ public final class BugPatternTestExtractor implements Extractor<TestCases> {
 
   @AutoValue
   abstract static class IdentificationTestEntry implements TestEntry {
-    @Override
     @JsonProperty
-    public final Type type() {
-      return Type.IDENTIFICATION;
+    @Override
+    public final TestType type() {
+      return TestType.IDENTIFICATION;
     }
 
     abstract String code();
@@ -258,10 +259,10 @@ public final class BugPatternTestExtractor implements Extractor<TestCases> {
 
   @AutoValue
   abstract static class ReplacementTestEntry implements TestEntry {
-    @Override
     @JsonProperty
-    public final Type type() {
-      return Type.REPLACEMENT;
+    @Override
+    public final TestType type() {
+      return TestType.REPLACEMENT;
     }
 
     abstract String input();
