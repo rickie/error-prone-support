@@ -2,7 +2,10 @@
 
 set -e -u -o pipefail
 
-integration_test_root="$(readlink -f "$(dirname "${0}")")"
+integration_test_root="$(cd `dirname -- $0` && pwd)"
+integration_test_root_2="$(readlink -f "$(dirname "${0}")")"
+echo "1: ${integration_test_root}"
+echo "2: ${integration_test_root_2}"
 error_prone_support_root="${integration_test_root}/.."
 repos_root="${integration_test_root}/.repos"
 
@@ -24,6 +27,21 @@ else
   report_directory="$(mktemp -d)"
   trap 'rm -rf -- "${report_directory}"' INT TERM HUP EXIT
 fi
+
+case "$(uname -s)" in
+  Linux*)
+    grep_command=grep
+    sed_command=sed
+    ;;
+  Darwin*)
+    grep_command=ggrep
+    sed_command=gsed
+    ;;
+  *)
+    echo "Unsupported distribution $(uname -s) for this script."
+    exit 1
+    ;;
+esac
 
 # XXX: Configure Renovate to manage the AssertJ version declared here.
 shared_build_flags="
@@ -48,14 +66,14 @@ error_prone_shared_flags='-XepExcludedPaths:(\Q${project.basedir}${file.separato
 
 error_prone_patch_flags="${error_prone_shared_flags} -XepPatchLocation:IN_PLACE -XepPatchChecks:$(
   find "${error_prone_support_root}" -path "*/META-INF/services/com.google.errorprone.bugpatterns.BugChecker" -print0 \
-    | xargs -0 grep -hoP '[^.]+$' \
+    | xargs -0 ${grep_command} -hoP '[^.]+$' \
     | paste -s -d ','
 )"
 
 error_prone_validation_flags="${error_prone_shared_flags} -XepDisableAllChecks $(
   find "${error_prone_support_root}" -path "*/META-INF/services/com.google.errorprone.bugpatterns.BugChecker" -print0 \
-    | xargs -0 grep -hoP '[^.]+$' \
-    | sed -r 's,(.*),-Xep:\1:WARN,' \
+    | xargs -0 ${grep_command} -hoP '[^.]+$' \
+    | ${sed_command} -r 's,(.*),-Xep:\1:WARN,' \
     | paste -s -d ' '
 )"
 
@@ -151,12 +169,12 @@ mvn ${shared_build_flags} \
 # Collect the applied changes.
 expected_changes="${integration_test_root}/${test_name}-expected-changes.patch"
 actual_changes="${report_directory}/${test_name}-changes.patch"
-(git diff "${diff_base}"..HEAD | grep -vP '^(diff|index)' || true) > "${actual_changes}"
+(git diff "${diff_base}"..HEAD | ${grep_command} -vP '^(diff|index)' || true) > "${actual_changes}"
 
 # Collect the warnings reported by Error Prone Support checks.
 expected_warnings="${integration_test_root}/${test_name}-expected-warnings.txt"
 actual_warnings="${report_directory}/${test_name}-validation-build-warnings.txt"
-(grep -oP "(?<=^\\Q[WARNING] ${PWD}/\\E).*" "${validation_build_log}" | grep -P '\] \[' || true) | LC_ALL=C sort > "${actual_warnings}"
+(${grep_command} -oP "(?<=^\\Q[WARNING] ${PWD}/\\E).*" "${validation_build_log}" | ${grep_command} -P '\] \[' || true) | LC_ALL=C sort > "${actual_warnings}"
 
 # Persist or validate the applied changes and reported warnings.
 if [ -n "${do_sync}" ]; then

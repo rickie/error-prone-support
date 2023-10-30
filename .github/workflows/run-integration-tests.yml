@@ -14,9 +14,12 @@ permissions:
 jobs:
   run-integration-tests:
     name: On-demand integration test
+    strategy:
+      matrix:
+        os: [ ubuntu-22.04, macos-12 ]
+    runs-on: ${{ matrix.os }}
     if: |
       github.event.issue.pull_request && contains(github.event.comment.body, '/integration-test')
-    runs-on: ubuntu-22.04
     steps:
       - name: Check out code
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
