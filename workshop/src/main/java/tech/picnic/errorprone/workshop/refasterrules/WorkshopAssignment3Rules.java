@@ -25,7 +25,7 @@ final class WorkshopAssignment3Rules {
     @AfterTemplate
     @UseImportPolicy(STATIC_IMPORT_ALWAYS)
     void after(boolean condition) {
-      checkArgument(condition);
+      checkArgument(!condition);
     }
   }
 
@@ -41,7 +41,7 @@ final class WorkshopAssignment3Rules {
     @AfterTemplate
     @UseImportPolicy(STATIC_IMPORT_ALWAYS)
     void after(boolean condition, String message) {
-      checkArgument(condition, message);
+      checkArgument(!condition, message);
     }
   }
 }
