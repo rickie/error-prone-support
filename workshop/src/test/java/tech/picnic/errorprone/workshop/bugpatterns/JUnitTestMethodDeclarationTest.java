@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 final class JUnitTestMethodDeclarationTest {
-  @Disabled("Enable this to validate part 1.")
   @Test
   void identificationIllegalModifiers() {
     CompilationTestHelper.newInstance(JUnitTestMethodDeclaration.class, getClass())
@@ -34,7 +33,6 @@ final class JUnitTestMethodDeclarationTest {
         .doTest();
   }
 
-  @Disabled("Enable this to validate part 1.")
   @Test
   void replacementIllegalModifiers() {
     BugCheckerRefactoringTestHelper.newInstance(JUnitTestMethodDeclaration.class, getClass())
@@ -75,12 +73,12 @@ final class JUnitTestMethodDeclarationTest {
         .doTest(TestMode.TEXT_MATCH);
   }
 
-  @Disabled("Enable this to validate part 2.")
   @Test
   void identificationMethodRename() {
     CompilationTestHelper.newInstance(JUnitTestMethodDeclaration.class, getClass())
         .addSourceLines(
             "A.java",
+            "import org.junit.jupiter.api.Test;",
             "class A {",
             "  @Test",
             "  void test() {}",
@@ -101,7 +99,6 @@ final class JUnitTestMethodDeclarationTest {
         .doTest();
   }
 
-  @Disabled("Enable this to validate part 2.")
   @Test
   void replacementMethodRenames() {
     BugCheckerRefactoringTestHelper.newInstance(JUnitTestMethodDeclaration.class, getClass())

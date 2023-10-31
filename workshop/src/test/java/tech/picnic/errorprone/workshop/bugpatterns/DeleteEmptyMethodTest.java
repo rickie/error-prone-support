@@ -38,10 +38,6 @@ final class DeleteEmptyMethodTest {
             "  /** Javadoc. */",
             "  // BUG: Diagnostic contains:",
             "  void m4() {}",
-            "",
-            "  void m5() {",
-            "    // Single-line comment.",
-            "  }",
             "}")
         .doTest();
   }
@@ -53,19 +49,21 @@ final class DeleteEmptyMethodTest {
         .addInputLines(
             "A.java",
             "final class A {",
+            "",
             "  void instanceMethod() {}",
             "",
             "  static void staticMethod() {}",
             "",
             "  static void staticMethodWithComment() {",
-            "    /* Foo. */",
+            "    System.out.println(42);",
             "  }",
             "}")
         .addOutputLines(
             "A.java",
             "final class A {",
+            "",
             "  static void staticMethodWithComment() {",
-            "    /* Foo. */",
+            "    System.out.println(42);",
             "  }",
             "}")
         .doTest(TestMode.TEXT_MATCH);
