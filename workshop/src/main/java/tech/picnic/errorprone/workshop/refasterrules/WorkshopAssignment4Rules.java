@@ -14,7 +14,7 @@ final class WorkshopAssignment4Rules {
   // XXX: Get the test to pass by improving the Refaster rule.
 
   /** Prefer reference-based quality for enums. */
-  static final class PrimitiveOrReferenceEqualityEnum<T> {
+  static final class PrimitiveOrReferenceEqualityEnum<T extends Enum<T>> {
     @BeforeTemplate
     boolean before(T a, T b) {
       return Refaster.anyOf(a.equals(b), Objects.equals(a, b));
