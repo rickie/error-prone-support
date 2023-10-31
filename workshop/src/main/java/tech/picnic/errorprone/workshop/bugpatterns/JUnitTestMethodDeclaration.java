@@ -24,6 +24,7 @@ import com.sun.source.tree.MethodTree;
 import com.sun.tools.javac.code.Symbol;
 import java.util.Optional;
 import javax.lang.model.element.Modifier;
+import tech.picnic.errorprone.workshop.bugpatterns.util.ConflictDetection;
 
 /** A {@link BugChecker} that flags non-canonical JUnit method declarations. */
 @AutoService(BugChecker.class)
@@ -56,7 +57,12 @@ public final class JUnitTestMethodDeclaration extends BugChecker
 
     if (tree.getName().toString().startsWith("test")) {
       Optional<String> improved = tryCanonicalizeMethodName(ASTHelpers.getSymbol(tree));
-      improved.map(newName -> fixBuilder.merge(SuggestedFixes.renameMethod(tree, newName, state)));
+      improved.map(
+          newName ->
+              ConflictDetection.findMethodRenameBlocker(ASTHelpers.getSymbol(tree), newName, state)
+                      .isEmpty()
+                  ? fixBuilder.merge(SuggestedFixes.renameMethod(tree, newName, state))
+                  : fixBuilder);
     }
 
     return fixBuilder.isEmpty() ? Description.NO_MATCH : describeMatch(tree, fixBuilder.build());
@@ -70,6 +76,9 @@ public final class JUnitTestMethodDeclaration extends BugChecker
         .map(name -> Character.toLowerCase(name.charAt(0)) + name.substring(1))
         .filter(name -> !Character.isDigit(name.charAt(0)));
   }
+
   // XXX: Part 1: Ensure JUnit test methods don't use {@link ILLEGAL_MODIFIERS}.
   // XXX: Part 2: If a method name starts with `test`, drop it.
+  // XXX: Part 3: To have a successful integration test, make sure to return `Description.NO_MATCH`
+  // if `ConflictDetection#findMethodRenameBlocker` returns a non empty `Optional`.
 }
